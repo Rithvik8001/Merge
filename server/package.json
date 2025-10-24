@@ -2,6 +2,7 @@
   "name": "server",
   "version": "1.0.0",
   "description": "Where developers stop shipping bugs and start shipping friendships.",
+  "type": "module",
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
