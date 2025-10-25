@@ -1,45 +1,69 @@
-import type { Request, Response } from "express";
-import AppError from "../../utils/AppError";
+import type { Request, Response, NextFunction } from "express";
+import AppError from "../../utils/AppError.ts";
 
 interface ErrorResponse {
+  success: false;
+  statusCode: number;
   message: string;
   errors?: Array<{ field: string; message: string }>;
-  error?: string;
+  errorCode?: string;
+  timestamp?: string;
 }
 
-export const errorHandler = (err: Error, req: Request, res: Response) => {
+export const errorHandler = (
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const isDevelopment = process.env.NODE_ENV === "development";
+
   console.error("[Error]", {
+    timestamp: new Date().toISOString(),
     message: err.message,
     stack: err.stack,
     path: req.path,
     method: req.method,
+    body: isDevelopment ? req.body : undefined,
   });
 
-  let response: ErrorResponse = { message: "Internal server error" };
-  let statusCode = 500;
+  let response: ErrorResponse = {
+    success: false,
+    statusCode: 500,
+    message: "Something went wrong. Please try again later.",
+    timestamp: new Date().toISOString(),
+  };
 
   if (err instanceof AppError) {
-    statusCode = err.statusCode;
+    response.statusCode = err.statusCode;
     response.message = err.message;
+
+    if (err.errorCode) {
+      response.errorCode = err.errorCode;
+    }
 
     const customErr = err as any;
     if (customErr.validationErrors) {
       response.errors = customErr.validationErrors;
     }
-
-    if (process.env.NODE_ENV === "development") {
-      response.error = err.message;
-    }
+  } else if (err.name === "ValidationError") {
+    response.statusCode = 400;
+    response.message = "Validation error occurred";
+    response.errorCode = "VALIDATION_ERROR";
+  } else if (err.name === "MongoError" || err.name === "MongoServerError") {
+    response.statusCode = 400;
+    response.message = "Database error occurred";
+    response.errorCode = "DATABASE_ERROR";
   } else {
-    statusCode = 500;
-    response.message = "Internal server error";
-
-    if (process.env.NODE_ENV === "development") {
-      response.error = err.message;
-    }
+    response.statusCode = 500;
+    response.message = "Something went wrong. Please try again later.";
   }
 
-  return res.status(statusCode).json(response);
+  if (!isDevelopment) {
+    delete (response as any).timestamp;
+  }
+
+  return res.status(response.statusCode).json(response);
 };
 
 export default errorHandler;

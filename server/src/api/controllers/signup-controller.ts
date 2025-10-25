@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 import bcrypt from "bcrypt";
-import signupValidation from "../validations/signup-validation";
-import User from "../../db/models/user";
-import AppError from "../../utils/AppError";
-import handleZodError from "../../utils/zodErrorHandler";
+import signupValidation from "../validations/signup-validation.ts";
+import User from "../../db/models/user.ts";
+import AppError from "../../utils/AppError.ts";
+import handleZodError from "../../utils/zodErrorHandler.ts";
 
 const signupController = async (req: Request, res: Response) => {
   try {
@@ -17,9 +17,12 @@ const signupController = async (req: Request, res: Response) => {
     const existingUser = await User.findOne({ email: email });
 
     if (existingUser) {
-      return res.status(400).json({
-        message: "User already exists with this email",
-      });
+      throw new AppError(
+        "This email is already registered. Please use a different email or try logging in.",
+        409,
+        true,
+        "EMAIL_ALREADY_EXISTS",
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -31,29 +34,16 @@ const signupController = async (req: Request, res: Response) => {
     });
 
     return res.status(201).json({
+      success: true,
       message: "User registered successfully",
       data: {
         id: newUser._id,
         email: newUser.email,
-        ...optionalData,
+        userName: newUser.userName || undefined,
       },
     });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({
-        message: error.message,
-        errors: (error as any).validationErrors,
-      });
-    }
-
-    console.error("[Signup Controller Error]", error);
-    return res.status(500).json({
-      message: "Internal server error",
-      error:
-        process.env.NODE_ENV === "development"
-          ? (error as Error).message
-          : undefined,
-    });
+    throw error;
   }
 };
 
