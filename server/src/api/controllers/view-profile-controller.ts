@@ -15,9 +15,7 @@ const viewProfileController = async (req: Request, res: Response) => {
       return;
     }
 
-    const user = await User.findById(userId).select(
-      "-password -__v"
-    );
+    const user = await User.findById(userId).select("-password -__v");
 
     if (!user) {
       throw new AppError("User not found", 404, true, "USER_NOT_FOUND");

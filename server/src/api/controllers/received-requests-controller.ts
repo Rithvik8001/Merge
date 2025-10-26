@@ -23,7 +23,10 @@ const receivedRequestsController = async (req: Request, res: Response) => {
       toUserId: userId,
       status: "interested",
     })
-      .populate("fromUserId", "userName email age gender about skills createdAt")
+      .populate(
+        "fromUserId",
+        "userName email age gender about skills createdAt",
+      )
       .sort({ createdAt: -1 });
 
     res.status(200).json({

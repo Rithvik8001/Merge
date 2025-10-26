@@ -26,7 +26,7 @@ const passwordChangeController = async (req: Request, res: Response) => {
 
     const isCurrentPasswordValid = await bcrypt.compare(
       currentPassword,
-      user.password
+      user.password,
     );
 
     if (!isCurrentPasswordValid) {
@@ -34,7 +34,7 @@ const passwordChangeController = async (req: Request, res: Response) => {
         "Current password is incorrect",
         401,
         true,
-        "INVALID_CURRENT_PASSWORD"
+        "INVALID_CURRENT_PASSWORD",
       );
     }
 
@@ -43,7 +43,7 @@ const passwordChangeController = async (req: Request, res: Response) => {
         "New password must be different from current password",
         400,
         true,
-        "SAME_PASSWORD"
+        "SAME_PASSWORD",
       );
     }
 
