@@ -1,5 +1,6 @@
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import {
   Users,
   MessageSquare,
@@ -11,6 +12,8 @@ import {
 } from "lucide-react";
 
 export const Landing = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
@@ -31,7 +34,7 @@ export const Landing = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 mt-6">
-            <Button size="lg" className="gap-2">
+            <Button size="lg" className="gap-2" onClick={() => navigate("/signup")}>
               Get started free <ChevronRight size={18} />
             </Button>
           </div>
