@@ -33,6 +33,7 @@ const viewProfileController = async (req: Request, res: Response) => {
         age: user.age || undefined,
         gender: user.gender || undefined,
         about: user.about,
+        skills: user.skills || [],
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },

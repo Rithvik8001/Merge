@@ -18,6 +18,7 @@ export const validateEditProfile = z
     age: z.number().min(18, "Age must be at least 18").optional(),
     gender: z.enum(["Male", "Female"]).optional(),
     about: z.string().optional(),
+    skills: z.array(z.string()).optional(),
   })
   .strict();
 

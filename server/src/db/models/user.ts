@@ -34,6 +34,9 @@ const userSchema = new Schema(
       type: String,
       default: "Express about yourself here..",
     },
+    skills: {
+      type: [String],
+    },
   },
   { timestamps: true },
 );

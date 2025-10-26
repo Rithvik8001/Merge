@@ -38,6 +38,7 @@ const editProfileController = async (req: Request, res: Response) => {
         age: updatedUser?.age || undefined,
         gender: updatedUser?.gender || undefined,
         about: updatedUser?.about,
+        skills: updatedUser?.skills || [],
         updatedAt: updatedUser?.updatedAt,
       },
     });
