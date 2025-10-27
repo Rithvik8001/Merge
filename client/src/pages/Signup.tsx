@@ -3,7 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import logo from "@/assets/logo.png";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Loader2, Check, X } from "lucide-react";
+import { useSignup } from "@/hooks/useSignup";
 
 export const Signup = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export const Signup = () => {
     confirmPassword: "",
     userName: "",
   });
+  const { isLoading, error, signup } = useSignup();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -22,11 +24,26 @@ export const Signup = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Call backend signup API
-    console.log("Signup:", formData);
+    await signup(formData);
   };
+
+  // Password validation helpers
+  const passwordValidations = {
+    hasLength: formData.password.length >= 8,
+    hasUpperCase: /[A-Z]/.test(formData.password),
+    hasLowerCase: /[a-z]/.test(formData.password),
+    hasNumber: /[0-9]/.test(formData.password),
+    hasSpecialChar: /[!@#$%^&*()_+\-=[\]{};:'"|,.<>/?\\]/.test(
+      formData.password,
+    ),
+  };
+
+  const isPasswordValid = Object.values(passwordValidations).every(Boolean);
+  const passwordsMatch =
+    formData.password === formData.confirmPassword &&
+    formData.password.length > 0;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -41,7 +58,9 @@ export const Signup = () => {
           </button>
 
           <div className="hidden md:flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Already have an account?</span>
+            <span className="text-sm text-muted-foreground">
+              Already have an account?
+            </span>
             <Link to="/login">
               <Button size="sm" variant="outline">
                 Sign in
@@ -67,6 +86,12 @@ export const Signup = () => {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="bg-destructive/10 border border-destructive/30 text-destructive text-sm p-3 rounded">
+                  {error}
+                </div>
+              )}
+
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">
                   Username
@@ -77,6 +102,7 @@ export const Signup = () => {
                   placeholder="Choose a username"
                   value={formData.userName}
                   onChange={handleChange}
+                  disabled={isLoading}
                   className="border border-border/50 focus:border-primary"
                 />
                 <p className="text-xs text-muted-foreground">
@@ -94,6 +120,7 @@ export const Signup = () => {
                   placeholder="you@example.com"
                   value={formData.email}
                   onChange={handleChange}
+                  disabled={isLoading}
                   className="border border-border/50 focus:border-primary"
                 />
               </div>
@@ -108,11 +135,86 @@ export const Signup = () => {
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={handleChange}
+                  disabled={isLoading}
                   className="border border-border/50 focus:border-primary"
                 />
-                <p className="text-xs text-muted-foreground">
-                  Min 8 characters with uppercase, lowercase, number & special char
-                </p>
+                <div className="mt-2 space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Password requirements:
+                  </p>
+                  <div className="space-y-1">
+                    <div
+                      className={`text-xs flex items-center gap-2 ${
+                        passwordValidations.hasLength
+                          ? "text-green-600"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {passwordValidations.hasLength ? (
+                        <Check size={14} />
+                      ) : (
+                        <X size={14} />
+                      )}
+                      Min 8 characters
+                    </div>
+                    <div
+                      className={`text-xs flex items-center gap-2 ${
+                        passwordValidations.hasUpperCase
+                          ? "text-green-600"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {passwordValidations.hasUpperCase ? (
+                        <Check size={14} />
+                      ) : (
+                        <X size={14} />
+                      )}
+                      Uppercase letter
+                    </div>
+                    <div
+                      className={`text-xs flex items-center gap-2 ${
+                        passwordValidations.hasLowerCase
+                          ? "text-green-600"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {passwordValidations.hasLowerCase ? (
+                        <Check size={14} />
+                      ) : (
+                        <X size={14} />
+                      )}
+                      Lowercase letter
+                    </div>
+                    <div
+                      className={`text-xs flex items-center gap-2 ${
+                        passwordValidations.hasNumber
+                          ? "text-green-600"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {passwordValidations.hasNumber ? (
+                        <Check size={14} />
+                      ) : (
+                        <X size={14} />
+                      )}
+                      Number
+                    </div>
+                    <div
+                      className={`text-xs flex items-center gap-2 ${
+                        passwordValidations.hasSpecialChar
+                          ? "text-green-600"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {passwordValidations.hasSpecialChar ? (
+                        <Check size={14} />
+                      ) : (
+                        <X size={14} />
+                      )}
+                      Special character
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -125,12 +227,44 @@ export const Signup = () => {
                   placeholder="••••••••"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="border border-border/50 focus:border-primary"
+                  disabled={isLoading}
+                  className={`border focus:border-primary ${
+                    formData.confirmPassword &&
+                    (passwordsMatch
+                      ? "border-green-500/50"
+                      : "border-destructive/50")
+                  }`}
                 />
+                {formData.confirmPassword && (
+                  <p
+                    className={`text-xs flex items-center gap-2 ${
+                      passwordsMatch ? "text-green-600" : "text-destructive"
+                    }`}
+                  >
+                    {passwordsMatch ? <Check size={14} /> : <X size={14} />}
+                    {passwordsMatch
+                      ? "Passwords match"
+                      : "Passwords do not match"}
+                  </p>
+                )}
               </div>
 
-              <Button type="submit" className="w-full gap-2" size="lg">
-                Create account <ChevronRight size={18} />
+              <Button
+                type="submit"
+                className="w-full gap-2"
+                size="lg"
+                disabled={isLoading || !isPasswordValid}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Creating account...
+                  </>
+                ) : (
+                  <>
+                    Create account <ChevronRight size={18} />
+                  </>
+                )}
               </Button>
             </form>
 

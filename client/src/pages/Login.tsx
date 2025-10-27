@@ -3,16 +3,18 @@ import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import logo from "@/assets/logo.png";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
+import { useLogin } from "@/hooks/useLogin";
 
 export const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { isLoading, error, login } = useLogin();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login:", { email, password });
+    await login({ email, password });
   };
 
   return (
@@ -54,6 +56,12 @@ export const Login = () => {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="bg-destructive/10 border border-destructive/30 text-destructive text-sm p-3 rounded">
+                  {error}
+                </div>
+              )}
+
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">
                   Email
@@ -63,6 +71,7 @@ export const Login = () => {
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
                   className="border border-border/50 focus:border-primary"
                 />
               </div>
@@ -76,12 +85,22 @@ export const Login = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
                   className="border border-border/50 focus:border-primary"
                 />
               </div>
 
-              <Button type="submit" className="w-full gap-2" size="lg">
-                Sign in <ChevronRight size={18} />
+              <Button type="submit" className="w-full gap-2" size="lg" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    Sign in <ChevronRight size={18} />
+                  </>
+                )}
               </Button>
             </form>
 

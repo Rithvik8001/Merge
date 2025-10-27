@@ -1,6 +1,7 @@
 import express from "express";
 import type { Express } from "express";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import "dotenv/config";
 import { connectDb } from "./db/config/connection.ts";
 import authRouter from "../src/api/routes/auth/route.ts";
@@ -11,6 +12,15 @@ import errorHandler from "./api/middlewares/errorHandler.ts";
 const app: Express = express();
 const PORT = process.env.PORT;
 
+// CORS configuration
+const corsOptions = {
+  origin: process.env.CLIENT_URL,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 

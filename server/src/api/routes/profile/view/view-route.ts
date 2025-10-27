@@ -3,6 +3,6 @@ import viewProfileController from "../../../controllers/view-profile-controller.
 
 const viewRoute: ExpressRouter = Router();
 
-viewRoute.get("/view/:userId", viewProfileController);
+viewRoute.get("/:userId", viewProfileController);
 
 export default viewRoute;
