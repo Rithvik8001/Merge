@@ -4,14 +4,21 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { ProfileModal } from "@/components/ProfileModal";
 import { useAuthStore } from "@/store/authStore";
-import { useConnection, type ConnectionRequest } from "@/hooks";
+import {
+  useConnection,
+  useProfileModal,
+  type ConnectionRequest,
+} from "@/hooks";
 import { Loader2, Check, X, MessageSquare } from "lucide-react";
 
 export const Requests = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
-  const { getReceivedRequests, respondToRequest, isLoading } = useConnection();
+  const { getReceivedRequests, respondToRequest } = useConnection();
+  const { selectedUserId, isOpen, openProfile, closeProfile } =
+    useProfileModal();
   const [requests, setRequests] = useState<ConnectionRequest[]>([]);
   const [pageLoading, setPageLoading] = useState(true);
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
@@ -42,7 +49,7 @@ export const Requests = () => {
 
   const handleRespond = async (
     requestId: string,
-    status: "accepted" | "rejected"
+    status: "accepted" | "rejected",
   ) => {
     try {
       setActionInProgress(requestId);
@@ -70,7 +77,8 @@ export const Requests = () => {
               Connection Requests
             </h1>
             <p className="text-base text-muted-foreground">
-              Respond to requests from developers interested in connecting with you.
+              Respond to requests from developers interested in connecting with
+              you.
             </p>
           </div>
         </div>
@@ -97,7 +105,8 @@ export const Requests = () => {
                     No pending requests
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    You don't have any connection requests yet. Discover developers to get started!
+                    You don't have any connection requests yet. Discover
+                    developers to get started!
                   </p>
                 </div>
               </div>
@@ -111,12 +120,17 @@ export const Requests = () => {
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
                       {/* Left: User Info */}
                       <div className="flex items-start gap-4 flex-1 min-w-0">
-                        <Avatar className="w-12 h-12 flex-shrink-0">
-                          <AvatarFallback className="bg-muted text-foreground font-semibold">
-                            {request.fromUserId?.userName?.[0]?.toUpperCase() ||
-                              request.fromUserId?.email[0].toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
+                        <button
+                          onClick={() => openProfile(request.fromUserId.id)}
+                          className="flex-shrink-0 hover:opacity-80 transition-opacity"
+                        >
+                          <Avatar className="w-12 h-12">
+                            <AvatarFallback className="bg-muted text-foreground font-semibold">
+                              {request.fromUserId?.userName?.[0]?.toUpperCase() ||
+                                request.fromUserId?.email[0].toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                        </button>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-foreground line-clamp-1">
                             {request.fromUserId?.userName ||
@@ -222,6 +236,13 @@ export const Requests = () => {
           </div>
         </div>
       </div>
+
+      {/* Profile Modal */}
+      <ProfileModal
+        userId={selectedUserId}
+        isOpen={isOpen}
+        onClose={closeProfile}
+      />
     </DashboardLayout>
   );
 };

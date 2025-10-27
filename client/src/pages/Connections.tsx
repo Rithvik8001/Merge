@@ -4,14 +4,21 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { ProfileModal } from "@/components/ProfileModal";
 import { useAuthStore } from "@/store/authStore";
-import { useConnection, type AcceptedConnection } from "@/hooks";
+import {
+  useConnection,
+  useProfileModal,
+  type AcceptedConnection,
+} from "@/hooks";
 import { Loader2, MessageCircle, MessageSquare } from "lucide-react";
 
 export const Connections = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
   const { getAcceptedConnections } = useConnection();
+  const { selectedUserId, isOpen, openProfile, closeProfile } =
+    useProfileModal();
   const [connections, setConnections] = useState<AcceptedConnection[]>([]);
   const [pageLoading, setPageLoading] = useState(true);
 
@@ -80,7 +87,8 @@ export const Connections = () => {
                     No connections yet
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Start discovering and connecting with developers to build your network!
+                    Start discovering and connecting with developers to build
+                    your network!
                   </p>
                 </div>
               </div>
@@ -94,12 +102,19 @@ export const Connections = () => {
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
                       {/* Left: User Info */}
                       <div className="flex items-start gap-4 flex-1 min-w-0">
-                        <Avatar className="w-12 h-12 flex-shrink-0">
-                          <AvatarFallback className="bg-muted text-foreground font-semibold">
-                            {connection.connectedUser?.userName?.[0]?.toUpperCase() ||
-                              connection.connectedUser?.email[0].toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
+                        <button
+                          onClick={() =>
+                            openProfile(connection.connectedUser.id)
+                          }
+                          className="flex-shrink-0 hover:opacity-80 transition-opacity"
+                        >
+                          <Avatar className="w-12 h-12">
+                            <AvatarFallback className="bg-muted text-foreground font-semibold">
+                              {connection.connectedUser?.userName?.[0]?.toUpperCase() ||
+                                connection.connectedUser?.email[0].toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                        </button>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-foreground line-clamp-1">
                             {connection.connectedUser?.userName ||
@@ -148,12 +163,15 @@ export const Connections = () => {
                                         {skill}
                                       </Badge>
                                     ))}
-                                  {connection.connectedUser.skills.length > 3 && (
+                                  {connection.connectedUser.skills.length >
+                                    3 && (
                                     <Badge
                                       variant="secondary"
                                       className="text-xs"
                                     >
-                                      +{connection.connectedUser.skills.length - 3}
+                                      +
+                                      {connection.connectedUser.skills.length -
+                                        3}
                                     </Badge>
                                   )}
                                 </div>
@@ -179,6 +197,13 @@ export const Connections = () => {
           </div>
         </div>
       </div>
+
+      {/* Profile Modal */}
+      <ProfileModal
+        userId={selectedUserId}
+        isOpen={isOpen}
+        onClose={closeProfile}
+      />
     </DashboardLayout>
   );
 };

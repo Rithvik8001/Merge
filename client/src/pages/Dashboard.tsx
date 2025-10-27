@@ -4,15 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { ProfileModal } from "@/components/ProfileModal";
 import { useAuthStore } from "@/store/authStore";
-import { useFeed, useConnection } from "@/hooks";
+import { useFeed, useConnection, useProfileModal } from "@/hooks";
 import { Loader2, Heart, X, MessageSquare, Zap } from "lucide-react";
 
 export const Dashboard = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
-  const { users, pagination, isLoading, fetchFeed, removeUserFromFeed } = useFeed();
+  const { users, pagination, isLoading, fetchFeed, removeUserFromFeed } =
+    useFeed();
   const { sendConnectionRequest } = useConnection();
+  const { selectedUserId, isOpen, openProfile, closeProfile } =
+    useProfileModal();
   const [currentPage, setCurrentPage] = useState(1);
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
 
@@ -85,7 +89,8 @@ export const Dashboard = () => {
                     No more developers
                   </h3>
                   <p className="text-sm text-muted-foreground mb-6">
-                    You've reviewed all available developers. Check back soon for new profiles!
+                    You've reviewed all available developers. Check back soon
+                    for new profiles!
                   </p>
                   <Button
                     onClick={() => {
@@ -112,16 +117,26 @@ export const Dashboard = () => {
                       <div className="p-6 flex flex-col h-full">
                         {/* User Header */}
                         <div className="flex items-start gap-4 mb-5">
-                          <Avatar className="w-14 h-14 flex-shrink-0">
-                            <AvatarFallback className="bg-muted text-foreground font-semibold">
-                              {dev.userName?.[0]?.toUpperCase() ||
-                                dev.email[0].toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
+                          <button
+                            onClick={() => openProfile(dev.id)}
+                            className="flex-shrink-0 hover:opacity-80 transition-opacity"
+                          >
+                            <Avatar className="w-14 h-14">
+                              <AvatarFallback className="bg-muted text-foreground font-semibold">
+                                {dev.userName?.[0]?.toUpperCase() ||
+                                  dev.email[0].toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                          </button>
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-foreground line-clamp-1">
-                              {dev.userName || "Developer"}
-                            </h3>
+                            <button
+                              onClick={() => openProfile(dev.id)}
+                              className="hover:text-primary transition-colors text-left"
+                            >
+                              <h3 className="font-semibold text-foreground line-clamp-1">
+                                {dev.userName || "Developer"}
+                              </h3>
+                            </button>
                             <p className="text-xs text-muted-foreground line-clamp-1">
                               {dev.email}
                             </p>
@@ -247,6 +262,15 @@ export const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Profile Modal */}
+      <ProfileModal
+        userId={selectedUserId}
+        isOpen={isOpen}
+        onClose={closeProfile}
+        onConnect={(userId) => handleConnect(userId, "interested")}
+        isConnecting={actionInProgress === selectedUserId}
+      />
     </DashboardLayout>
   );
 };
