@@ -4,6 +4,8 @@ import { Landing } from "./pages/Landing";
 import { Login } from "./pages/Login";
 import { Signup } from "./pages/Signup";
 import { Dashboard } from "./pages/Dashboard";
+import { Requests } from "./pages/Requests";
+import { Connections } from "./pages/Connections";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useAuthStore } from "@/store/authStore";
@@ -27,6 +29,22 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/requests"
+            element={
+              <ProtectedRoute>
+                <Requests />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/connections"
+            element={
+              <ProtectedRoute>
+                <Connections />
               </ProtectedRoute>
             }
           />

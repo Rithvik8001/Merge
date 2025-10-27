@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
+import { ModeToggle } from "@/components/mode-toggle";
 import {
   Sidebar,
   SidebarContent,
@@ -23,6 +24,8 @@ import {
   Settings,
   LogOut,
   ChevronDown,
+  Sparkles,
+  Menu,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -62,20 +65,13 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full">
-        {/* Dark Sidebar */}
-        <Sidebar className="w-64 border-r border-border bg-slate-950 text-white">
-          <SidebarHeader className="px-6 py-6 border-b border-slate-800">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white font-bold">
-                M
-              </div>
-              <span className="font-bold text-lg">Merge</span>
-            </div>
-          </SidebarHeader>
+      <div className="flex h-screen w-full bg-background">
+        {/* Modern Sidebar - Desktop Only */}
+        <Sidebar className="hidden md:flex w-64 border-r border-border bg-white dark:bg-slate-950/50 text-foreground">
+          <SidebarHeader className="px-6 py-4 border-b border-border" />
 
-          <SidebarContent className="px-3 py-6">
-            <nav className="space-y-2">
+          <SidebarContent className="px-4 py-4">
+            <nav className="space-y-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.url;
@@ -85,61 +81,90 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
                     key={item.url}
                     onClick={() => navigate(item.url)}
                     className={cn(
-                      "w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200",
+                      "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 group relative",
                       isActive
-                        ? "bg-primary text-white"
-                        : "text-slate-400 hover:text-white hover:bg-slate-800"
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
                     )}
                   >
-                    <Icon className="w-5 h-5 flex-shrink-0" />
-                    <span>{item.title}</span>
+                    <Icon
+                      className={cn(
+                        "w-5 h-5 shrink-0 transition-colors",
+                        isActive ? "text-primary" : "",
+                      )}
+                    />
+                    <span className="flex-1 text-left">{item.title}</span>
+                    {isActive && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-lg" />
+                    )}
                   </button>
                 );
               })}
             </nav>
+
+            <div className="pt-4 mt-4 border-t border-border">
+              <button
+                onClick={() => navigate("/settings")}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200"
+              >
+                <Settings className="w-5 h-5 shrink-0" />
+                <span className="flex-1 text-left">Settings</span>
+              </button>
+            </div>
           </SidebarContent>
 
-          <SidebarFooter className="border-t border-slate-800 px-3 py-4">
+          <SidebarFooter className="border-t border-border/40 px-4 py-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="w-full justify-between px-3 py-2 h-auto text-white hover:bg-slate-800"
+                  className="w-full justify-start px-4 py-3 h-auto hover:bg-muted/50 transition-all duration-200"
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                    <div className="w-10 h-10 bg-linear-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center text-xs font-bold text-primary shrink-0 border border-primary/20">
                       {user?.userName?.[0]?.toUpperCase() ||
                         user?.email?.[0]?.toUpperCase() ||
                         "U"}
                     </div>
                     <div className="flex flex-col min-w-0 text-left">
-                      <span className="text-sm font-medium text-white truncate">
+                      <span className="text-sm font-semibold text-foreground truncate">
                         {user?.userName || "Developer"}
                       </span>
-                      <span className="text-xs text-slate-400 truncate">
+                      <span className="text-xs text-muted-foreground truncate">
                         {user?.email}
                       </span>
                     </div>
                   </div>
-                  <ChevronDown className="w-4 h-4 flex-shrink-0 opacity-60" />
+                  <ChevronDown className="w-4 h-4 shrink-0 opacity-50" />
                 </Button>
               </DropdownMenuTrigger>
 
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem onClick={() => navigate("/profile")}>
-                  <span className="flex-1">My Profile</span>
+                <DropdownMenuItem
+                  onClick={() => navigate("/profile")}
+                  className="gap-2 cursor-pointer"
+                >
+                  <span className="text-base">👤</span>
+                  <span>My Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/settings")}>
-                  <Settings className="w-4 h-4 mr-2" />
-                  <span className="flex-1">Settings</span>
-                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+
+                <div className="px-2 py-2">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 mb-2">
+                    Theme
+                  </p>
+                  <div className="flex justify-center">
+                    <ModeToggle />
+                  </div>
+                </div>
+
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                  className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer gap-2"
                 >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  <span className="flex-1">Logout</span>
+                  <LogOut className="w-4 h-4" />
+                  <span>Logout</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -147,12 +172,117 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
         </Sidebar>
 
         {/* Main Content */}
-        <main className="flex-1 flex flex-col overflow-hidden bg-background">
-          {/* Top Bar */}
-          <div className="px-8 py-4 border-b border-border flex items-center justify-between bg-background/50">
-            <span className="text-sm text-muted-foreground">
-              Welcome back, <span className="font-semibold text-foreground">{user?.userName || "Developer"}</span>
-            </span>
+        <main className="flex-1 flex flex-col overflow-hidden bg-linear-to-br from-background via-background to-muted/10">
+          {/* Modern Top Bar */}
+          <div className="px-4 sm:px-6 lg:px-8 py-4 border-b border-border/40 flex items-center justify-between bg-white/40 dark:bg-slate-900/20 backdrop-blur-md sticky top-0 z-10">
+            <div className="flex items-center gap-4 flex-1 min-w-0">
+              {/* Mobile Menu Icon */}
+              <div className="md:hidden">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-10 w-10 rounded-lg p-0 hover:bg-muted"
+                >
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </div>
+
+              <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
+                <Sparkles className="w-4 h-4 text-primary shrink-0" />
+                <span>
+                  Welcome back,{" "}
+                  <span className="font-semibold text-foreground">
+                    {user?.userName ||
+                      user?.email?.split("@")[0] ||
+                      "Developer"}
+                  </span>
+                </span>
+              </div>
+
+              {/* Mobile Username */}
+              <div className="sm:hidden flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground truncate">
+                  {user?.userName || user?.email?.split("@")[0] || "Developer"}
+                </p>
+              </div>
+            </div>
+
+            {/* Mobile User Menu */}
+            <div className="md:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-10 w-10 rounded-lg p-0 hover:bg-muted"
+                  >
+                    <div className="w-6 h-6 bg-linear-to-br from-primary/20 to-primary/10 rounded-lg flex items-center justify-center text-xs font-bold text-primary">
+                      {user?.userName?.[0]?.toUpperCase() ||
+                        user?.email?.[0]?.toUpperCase() ||
+                        "U"}
+                    </div>
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem
+                    onClick={() => navigate("/dashboard")}
+                    className="cursor-pointer gap-2"
+                  >
+                    <Compass className="w-4 h-4" />
+                    <span>Discover</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => navigate("/requests")}
+                    className="cursor-pointer gap-2"
+                  >
+                    <Clock className="w-4 h-4" />
+                    <span>Requests</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => navigate("/connections")}
+                    className="cursor-pointer gap-2"
+                  >
+                    <Users className="w-4 h-4" />
+                    <span>Connections</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => navigate("/profile")}
+                    className="cursor-pointer gap-2"
+                  >
+                    <span className="text-base">👤</span>
+                    <span>My Profile</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => navigate("/settings")}
+                    className="cursor-pointer gap-2"
+                  >
+                    <Settings className="w-4 h-4" />
+                    <span>Settings</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+
+                  <div className="px-3 py-2">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 mb-2">
+                      Theme
+                    </p>
+                    <div className="flex justify-center">
+                      <ModeToggle />
+                    </div>
+                  </div>
+
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer gap-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Logout</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
 
           {/* Content */}

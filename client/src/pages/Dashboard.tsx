@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useAuthStore } from "@/store/authStore";
 import { useFeed, useConnection } from "@/hooks";
-import { Loader2, Heart, X, MessageSquare } from "lucide-react";
+import { Loader2, Heart, X, MessageSquare, Zap } from "lucide-react";
 
 export const Dashboard = () => {
   const navigate = useNavigate();
@@ -15,6 +14,7 @@ export const Dashboard = () => {
   const { users, pagination, isLoading, fetchFeed, removeUserFromFeed } = useFeed();
   const { sendConnectionRequest } = useConnection();
   const [currentPage, setCurrentPage] = useState(1);
+  const [actionInProgress, setActionInProgress] = useState<string | null>(null);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -33,11 +33,14 @@ export const Dashboard = () => {
     status: "interested" | "ignored",
   ) => {
     try {
+      setActionInProgress(targetUserId);
       await sendConnectionRequest(targetUserId, status);
       // Remove user from list after successful connection
       removeUserFromFeed(targetUserId);
     } catch (err) {
       // Error is already handled in the hook
+    } finally {
+      setActionInProgress(null);
     }
   };
 
@@ -47,91 +50,98 @@ export const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col h-full">
-        {/* Page Header */}
-        <div className="px-8 py-6 border-b border-border">
-          <h1 className="text-3xl font-bold text-foreground">
-            Discover Developers
-          </h1>
-          <p className="text-muted-foreground text-sm mt-2">
-            Find and connect with amazing developers in your network
-          </p>
+      <div className="flex flex-col h-full bg-background">
+        {/* Header */}
+        <div className="px-4 sm:px-8 py-6 sm:py-8 border-b border-border">
+          <div className="max-w-6xl mx-auto">
+            <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
+              Discover Developers
+            </h1>
+            <p className="text-base text-muted-foreground">
+              Find and connect with talented developers in your network.
+            </p>
+          </div>
         </div>
 
         {/* Content Area */}
         <div className="flex-1 overflow-auto">
-          <div className="px-8 py-8">
-            {isLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <div className="flex flex-col items-center gap-2">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                  <p className="text-muted-foreground">Loading developers...</p>
+          <div className="px-4 sm:px-8 py-8 sm:py-12 max-w-6xl mx-auto w-full">
+            {isLoading && users.length === 0 ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="flex flex-col items-center gap-3">
+                  <Loader2 className="w-10 h-10 animate-spin text-primary" />
+                  <p className="text-sm text-muted-foreground">
+                    Loading developers...
+                  </p>
                 </div>
               </div>
             ) : users.length === 0 ? (
-              <div className="flex items-center justify-center py-16">
-                <div className="text-center max-w-sm">
-                  <MessageSquare className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
-                  <p className="text-lg font-medium text-foreground mb-2">
-                    No more developers to discover
-                  </p>
+              <div className="flex items-center justify-center py-20">
+                <div className="text-center max-w-md">
+                  <div className="mx-auto mb-4 w-14 h-14 bg-muted rounded-xl flex items-center justify-center">
+                    <MessageSquare className="w-7 h-7 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
+                    No more developers
+                  </h3>
                   <p className="text-sm text-muted-foreground mb-6">
-                    You've reviewed all available developers. Check back soon for new connections!
+                    You've reviewed all available developers. Check back soon for new profiles!
                   </p>
                   <Button
-                    variant="outline"
                     onClick={() => {
                       setCurrentPage(1);
                       fetchFeed(1);
                     }}
+                    className="gap-2"
                   >
+                    <Zap className="w-4 h-4" />
                     Refresh
                   </Button>
                 </div>
               </div>
             ) : (
               <>
-                {/* Grid of Developer Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                   {users.map((dev) => (
-                    <Card
+                    <div
                       key={dev.id}
-                      className="flex flex-col border border-border hover:border-primary/60 transition-all duration-200"
+                      className="flex flex-col bg-card border border-border rounded-lg overflow-hidden transition-all duration-200 hover:border-primary/50 hover:shadow-sm"
                     >
-                      {/* Card Content */}
+                      {/* Card Body */}
                       <div className="p-6 flex flex-col h-full">
-                        {/* Header with Avatar */}
-                        <div className="flex items-start gap-4 mb-4">
-                          <Avatar className="w-14 h-14">
-                            <AvatarFallback className="bg-primary/10 text-primary font-bold text-lg">
+                        {/* User Header */}
+                        <div className="flex items-start gap-4 mb-5">
+                          <Avatar className="w-14 h-14 flex-shrink-0">
+                            <AvatarFallback className="bg-muted text-foreground font-semibold">
                               {dev.userName?.[0]?.toUpperCase() ||
                                 dev.email[0].toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-foreground">
+                            <h3 className="font-semibold text-foreground line-clamp-1">
                               {dev.userName || "Developer"}
                             </h3>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs text-muted-foreground line-clamp-1">
                               {dev.email}
                             </p>
                           </div>
                         </div>
 
-                        {/* User Info */}
-                        <div className="space-y-3 flex-1 mb-6">
-                          {/* Age and Gender */}
+                        {/* User Details */}
+                        <div className="mb-5 space-y-3 flex-1">
+                          {/* Age/Gender */}
                           {(dev.age || dev.gender) && (
-                            <div className="text-sm text-muted-foreground">
+                            <div className="text-xs text-muted-foreground">
                               {dev.age && <span>{dev.age}</span>}
                               {dev.age && dev.gender && <span> • </span>}
                               {dev.gender && <span>{dev.gender}</span>}
                             </div>
                           )}
 
-                          {/* About */}
+                          {/* Bio */}
                           {dev.about && (
-                            <p className="text-sm text-muted-foreground line-clamp-3">
+                            <p className="text-sm text-muted-foreground line-clamp-2">
                               {dev.about}
                             </p>
                           )}
@@ -139,7 +149,7 @@ export const Dashboard = () => {
                           {/* Skills */}
                           {dev.skills && dev.skills.length > 0 && (
                             <div className="flex flex-wrap gap-2">
-                              {dev.skills.slice(0, 4).map((skill) => (
+                              {dev.skills.slice(0, 3).map((skill) => (
                                 <Badge
                                   key={skill}
                                   variant="secondary"
@@ -148,38 +158,52 @@ export const Dashboard = () => {
                                   {skill}
                                 </Badge>
                               ))}
+                              {dev.skills.length > 3 && (
+                                <Badge variant="secondary" className="text-xs">
+                                  +{dev.skills.length - 3}
+                                </Badge>
+                              )}
                             </div>
                           )}
                         </div>
 
-                        {/* Action Buttons */}
-                        <div className="flex gap-2">
+                        {/* Actions */}
+                        <div className="flex gap-3 pt-5 border-t border-border">
                           <Button
                             size="sm"
-                            className="flex-1 gap-2"
                             onClick={() => handleConnect(dev.id, "interested")}
+                            disabled={actionInProgress === dev.id}
+                            className="flex-1 gap-2"
                           >
-                            <Heart size={16} />
-                            Connect
+                            <Heart
+                              size={16}
+                              className={
+                                actionInProgress === dev.id
+                                  ? "animate-pulse"
+                                  : ""
+                              }
+                            />
+                            {actionInProgress === dev.id ? "..." : "Connect"}
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
-                            className="flex-1 gap-2"
                             onClick={() => handleConnect(dev.id, "ignored")}
+                            disabled={actionInProgress === dev.id}
+                            className="flex-1 gap-2"
                           >
                             <X size={16} />
                             Pass
                           </Button>
                         </div>
                       </div>
-                    </Card>
+                    </div>
                   ))}
                 </div>
 
                 {/* Pagination */}
                 {pagination.totalPages > 1 && (
-                  <div className="flex justify-center items-center gap-4 mt-12 pt-8 border-t border-border">
+                  <div className="flex items-center justify-center gap-4">
                     <Button
                       variant="outline"
                       disabled={!pagination.hasPreviousPage || isLoading}
@@ -193,9 +217,15 @@ export const Dashboard = () => {
                       Previous
                     </Button>
 
-                    <div className="text-sm text-muted-foreground px-4">
-                      Page <span className="font-semibold text-foreground">{pagination.currentPage}</span> of{" "}
-                      <span className="font-semibold text-foreground">{pagination.totalPages}</span>
+                    <div className="text-sm text-muted-foreground">
+                      Page{" "}
+                      <span className="font-semibold text-foreground">
+                        {pagination.currentPage}
+                      </span>{" "}
+                      of{" "}
+                      <span className="font-semibold text-foreground">
+                        {pagination.totalPages}
+                      </span>
                     </div>
 
                     <Button
