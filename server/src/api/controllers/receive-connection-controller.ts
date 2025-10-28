@@ -28,7 +28,10 @@ const receiveConnectionController = async (req: Request, res: Response) => {
       throw new AppError("Connection request not found", 404, true);
     }
 
-    if (connection.toUserId._id.toString() !== userId) {
+    const toUser = connection.toUserId as any;
+    const fromUser = connection.fromUserId as any;
+
+    if (toUser._id.toString() !== userId) {
       throw new AppError(
         "You are not authorized to respond to this connection request",
         403,
@@ -53,8 +56,8 @@ const receiveConnectionController = async (req: Request, res: Response) => {
       message: `Connection request ${result.data.status}`,
       data: {
         connectionId: connection._id,
-        fromUserId: connection.fromUserId._id,
-        toUserId: connection.toUserId._id,
+        fromUserId: fromUser._id,
+        toUserId: toUser._id,
         status: connection.status,
         updatedAt: connection.updatedAt,
       },

@@ -34,9 +34,9 @@ const acceptedConnectionsController = async (req: Request, res: Response) => {
 
     const formattedConnections = acceptedConnections.map((connection) => {
       const connectedUser =
-        connection.fromUserId._id.toString() === userId
-          ? connection.toUserId
-          : connection.fromUserId;
+        (connection.fromUserId as any)._id.toString() === userId
+          ? (connection.toUserId as any)
+          : (connection.fromUserId as any);
 
       return {
         connectionId: connection._id,

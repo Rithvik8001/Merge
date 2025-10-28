@@ -128,8 +128,7 @@ export const Connections = () => {
                         </button>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-foreground line-clamp-1">
-                            {connection.connectedUser?.userName ||
-                              "Developer"}
+                            {connection.connectedUser?.userName || "Developer"}
                           </h3>
 
                           {/* Info */}

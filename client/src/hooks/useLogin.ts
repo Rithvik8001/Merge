@@ -50,7 +50,7 @@ export const useLogin = (): UseLoginReturn => {
         {
           email: credentials.email,
           password: credentials.password,
-        }
+        },
       );
 
       // Extract user data from response
