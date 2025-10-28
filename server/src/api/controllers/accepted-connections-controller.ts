@@ -40,7 +40,17 @@ const acceptedConnectionsController = async (req: Request, res: Response) => {
 
       return {
         connectionId: connection._id,
-        connectedUser: connectedUser,
+        connectedUser: {
+          id: connectedUser._id.toString(),
+          userName: connectedUser.userName,
+          email: connectedUser.email,
+          age: connectedUser.age,
+          gender: connectedUser.gender,
+          about: connectedUser.about,
+          skills: connectedUser.skills,
+          photoUrl: connectedUser.photoUrl,
+          createdAt: connectedUser.createdAt,
+        },
         status: connection.status,
         connectedAt: connection.actionAt,
       };

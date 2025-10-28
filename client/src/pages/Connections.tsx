@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { ProfileModal } from "@/components/ProfileModal";
 import { useAuthStore } from "@/store/authStore";
+import { useChat } from "@/hooks/useChat";
+import { toast } from "sonner";
 import {
   useConnection,
   useProfileModal,
@@ -13,10 +16,13 @@ import {
 } from "@/hooks";
 import { Loader2, MessageCircle, MessageSquare } from "lucide-react";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 export const Connections = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
   const { getAcceptedConnections } = useConnection();
+  const { selectConversation } = useChat();
   const { selectedUserId, isOpen, openProfile, closeProfile } =
     useProfileModal();
   const [connections, setConnections] = useState<AcceptedConnection[]>([]);
@@ -45,6 +51,35 @@ export const Connections = () => {
 
     fetchConnections();
   }, []);
+
+  const handleMessageClick = async (connection: AcceptedConnection) => {
+    try {
+      // Get or create conversation with this user
+      const response = await axios.post(
+        `${API_URL}/api/v1/chat/conversations/with/${connection.connectedUser.id}`,
+        {},
+        {
+          withCredentials: true,
+        },
+      );
+
+      const conversationId = response.data.data.id;
+
+      // Select the conversation and open chat
+      selectConversation(conversationId, {
+        id: connection.connectedUser.id,
+        userName: connection.connectedUser.userName,
+        email: connection.connectedUser.email,
+        photoUrl: connection.connectedUser.photoUrl,
+      });
+
+      // Navigate to dashboard with messages (Messages button will handle opening chat)
+      navigate("/dashboard?view=messages");
+    } catch (error) {
+      console.error("Error initiating conversation:", error);
+      toast.error("Failed to start conversation. Please try again.");
+    }
+  };
 
   if (!isAuthenticated) {
     return null;
@@ -110,7 +145,10 @@ export const Connections = () => {
                         >
                           <Avatar className="w-12 h-12">
                             {connection.connectedUser?.photoUrl ? (
-                              <AvatarImage src={connection.connectedUser.photoUrl} alt={connection.connectedUser.userName} />
+                              <AvatarImage
+                                src={connection.connectedUser.photoUrl}
+                                alt={connection.connectedUser.userName}
+                              />
                             ) : null}
                             <AvatarFallback className="bg-muted text-foreground font-semibold">
                               {connection.connectedUser?.userName?.[0]?.toUpperCase() ||
@@ -188,6 +226,7 @@ export const Connections = () => {
                         variant="outline"
                         size="sm"
                         className="gap-2 w-full sm:w-auto"
+                        onClick={() => handleMessageClick(connection)}
                       >
                         <MessageSquare size={16} />
                         Message

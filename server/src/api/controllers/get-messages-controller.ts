@@ -8,8 +8,8 @@ import handleZodError from "../../utils/zodErrorHandler.ts";
 const getMessagesController = async (req: Request, res: Response) => {
   try {
     const userId = req.userId;
+    const { conversationId } = req.params;
     const {
-      conversationId,
       page: pageParam = "1",
       limit: limitParam = "20",
     } = req.query;

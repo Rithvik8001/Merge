@@ -119,6 +119,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     } finally {
       // Clear all storage
       sessionStorage.removeItem("user");
+      // Token is cleared by the server via httpOnly cookie (set to expired)
       set({
         user: null,
         isAuthenticated: false,

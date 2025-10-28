@@ -63,6 +63,9 @@ export const useLogin = (): UseLoginReturn => {
         // Save to sessionStorage for use on page refresh
         sessionStorage.setItem("user", JSON.stringify(userData));
 
+        // Token is stored in httpOnly cookie automatically by the server
+        // No need to store it in sessionStorage - Socket.io will use the cookie
+
         // Update Zustand store with user data
         setUser(userData);
       }

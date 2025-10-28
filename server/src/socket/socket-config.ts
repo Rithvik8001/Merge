@@ -18,17 +18,26 @@ export const initializeSocket = (httpServer: HTTPServer) => {
   const io = new Server(httpServer, {
     cors: {
       origin: process.env.CLIENT_URL,
-      credentials: true,
+      credentials: true, // Allow credentials (cookies) in CORS
     },
   });
 
-  // Middleware for JWT authentication
+  // Middleware for JWT authentication via httpOnly cookie
   io.use((socket, next) => {
     try {
-      const token = socket.handshake.auth.token;
+      // Get token from httpOnly cookie
+      const cookies = socket.handshake.headers.cookie;
+
+      if (!cookies) {
+        return next(new Error("Authentication cookie not provided"));
+      }
+
+      // Parse cookie string to extract token
+      const tokenMatch = cookies.match(/token=([^;]*)/);
+      const token = tokenMatch ? tokenMatch[1] : null;
 
       if (!token) {
-        return next(new Error("Authentication token not provided"));
+        return next(new Error("Authentication token not found in cookies"));
       }
 
       const decoded = jwt.verify(token, JWT_SECRET!) as JwtPayload;
@@ -37,18 +46,16 @@ export const initializeSocket = (httpServer: HTTPServer) => {
 
       next();
     } catch (error) {
+      console.error("Socket auth error:", error);
       next(new Error("Invalid authentication token"));
     }
   });
 
   // Connection event
   io.on("connection", (socket: AuthenticatedSocket) => {
-    console.log(`User connected: ${socket.userId} (${socket.id})`);
-
     // Store user connection
     if (socket.userId) {
       userConnections.set(socket.userId, socket.id);
-      console.log("Active connections:", userConnections.size);
     }
 
     // Join user's personal room for direct messages
@@ -113,8 +120,6 @@ export const initializeSocket = (httpServer: HTTPServer) => {
           }),
           isOwn: true,
         });
-
-        console.log(`Message sent from ${socket.userId} to ${recipientId}`);
       } catch (error) {
         console.error("Error sending message:", error);
         socket.emit("error", "Failed to send message");
@@ -147,11 +152,8 @@ export const initializeSocket = (httpServer: HTTPServer) => {
 
     // Disconnect event
     socket.on("disconnect", () => {
-      console.log(`User disconnected: ${socket.userId} (${socket.id})`);
-
       if (socket.userId) {
         userConnections.delete(socket.userId);
-        console.log("Active connections:", userConnections.size);
       }
     });
   });

@@ -1,6 +1,7 @@
-import { ReactNode, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { ReactNode, useState, useEffect } from "react";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
+import { useChat } from "@/hooks/useChat";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ChatSidebar } from "@/components/ChatSidebar";
@@ -42,73 +43,45 @@ interface NavItem {
 export const DashboardLayout = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { user, logout } = useAuthStore();
+  const {
+    conversations,
+    messages,
+    selectedConversationId,
+    selectedUser,
+    isConnected,
+    isLoadingConversations,
+    isLoadingMessages,
+    fetchConversations,
+    selectConversation,
+    sendMessage,
+  } = useChat();
 
-  // Chat state (for now with mock data)
+  // Chat UI state
   const [showChat, setShowChat] = useState(false);
-  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
 
-  // Mock conversations data
-  const mockConversations = [
-    {
-      id: "conv1",
-      userId: "user1",
-      userName: "John Developer",
-      email: "john@dev.com",
-      photoUrl: undefined,
-      lastMessage: "Hey! How are you doing?",
-      lastMessageTime: "2:30 PM",
-      unreadCount: 2,
-    },
-    {
-      id: "conv2",
-      userId: "user2",
-      userName: "Sarah Code",
-      email: "sarah@dev.com",
-      photoUrl: undefined,
-      lastMessage: "Let's collaborate on that project",
-      lastMessageTime: "1:15 PM",
-      unreadCount: 0,
-    },
-  ];
+  // Auto-open chat if view=messages in query params
+  useEffect(() => {
+    const view = searchParams.get("view");
+    if (view === "messages") {
+      setShowChat(true);
+      // Remove the query param after opening chat
+      navigate(location.pathname, { replace: true });
+    }
+  }, [searchParams, navigate, location.pathname]);
 
-  // Mock messages data
-  const mockMessages = [
-    {
-      id: "msg1",
-      senderId: "user1",
-      senderName: "John Developer",
-      senderPhoto: undefined,
-      content: "Hey! How are you doing?",
-      timestamp: "2:25 PM",
-      isOwn: false,
-    },
-    {
-      id: "msg2",
-      senderId: "current-user",
-      senderName: "You",
-      senderPhoto: undefined,
-      content: "I'm doing great! How about you?",
-      timestamp: "2:26 PM",
-      isOwn: true,
-    },
-    {
-      id: "msg3",
-      senderId: "user1",
-      senderName: "John Developer",
-      senderPhoto: undefined,
-      content: "Same! Want to work on something cool together?",
-      timestamp: "2:30 PM",
-      isOwn: false,
-    },
-  ];
+  // Fetch conversations when chat is opened
+  useEffect(() => {
+    if (showChat && conversations.length === 0) {
+      fetchConversations();
+    }
+  }, [showChat, conversations.length, fetchConversations]);
 
   const handleSelectConversation = (conversationId: string) => {
-    setSelectedConversationId(conversationId);
-    const conversation = mockConversations.find(c => c.id === conversationId);
+    const conversation = conversations.find(c => c.id === conversationId);
     if (conversation) {
-      setSelectedUser({
+      selectConversation(conversationId, {
         id: conversation.userId,
         userName: conversation.userName,
         email: conversation.email,
@@ -118,13 +91,14 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
   };
 
   const handleSendMessage = (content: string) => {
-    console.log("Send message:", content);
-    // Will be implemented with Socket.io later
+    if (selectedUser) {
+      sendMessage(content, selectedUser.id);
+    }
   };
 
   const handleBackFromChat = () => {
-    setSelectedConversationId(null);
-    setSelectedUser(null);
+    // Clear selection by passing null (useChat hook will handle state reset)
+    // For mobile view, we just hide the chat window
   };
 
   const navItems: NavItem[] = [
@@ -399,13 +373,15 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
               {/* Desktop - Show sidebar on left */}
               <div className="hidden md:flex flex-1">
                 <ChatSidebar
-                  conversations={mockConversations}
+                  conversations={conversations}
                   selectedConversationId={selectedConversationId}
                   onSelectConversation={handleSelectConversation}
+                  isLoading={isLoadingConversations}
                 />
                 <ChatWindow
                   selectedUser={selectedUser}
-                  messages={mockMessages}
+                  messages={messages}
+                  isLoading={isLoadingMessages}
                   onSendMessage={handleSendMessage}
                   onBack={handleBackFromChat}
                 />
@@ -416,15 +392,17 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
                 {selectedConversationId ? (
                   <ChatWindow
                     selectedUser={selectedUser}
-                    messages={mockMessages}
+                    messages={messages}
+                    isLoading={isLoadingMessages}
                     onSendMessage={handleSendMessage}
                     onBack={handleBackFromChat}
                   />
                 ) : (
                   <ChatSidebar
-                    conversations={mockConversations}
+                    conversations={conversations}
                     selectedConversationId={selectedConversationId}
                     onSelectConversation={handleSelectConversation}
+                    isLoading={isLoadingConversations}
                   />
                 )}
               </div>
