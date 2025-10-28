@@ -26,20 +26,32 @@ interface ChatWindowProps {
   selectedUser: ChatUser | null;
   messages: Message[];
   isLoading?: boolean;
+  isUserOnline?: boolean;
+  isUserTyping?: boolean;
+  hasMoreMessages?: boolean;
   onSendMessage: (content: string) => void;
   onBack: () => void;
+  onLoadMoreMessages?: () => void;
+  onTyping?: () => void;
 }
 
 export const ChatWindow = ({
   selectedUser,
   messages,
   isLoading = false,
+  isUserOnline = false,
+  isUserTyping = false,
+  hasMoreMessages = false,
   onSendMessage,
   onBack,
+  onLoadMoreMessages,
+  onTyping,
 }: ChatWindowProps) => {
   const [messageInput, setMessageInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const [isNearTop, setIsNearTop] = useState(false);
 
   // Auto-scroll to latest message
   useEffect(() => {
@@ -48,6 +60,17 @@ export const ChatWindow = ({
     }
   }, [messages]);
 
+  // Handle scroll for pagination
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const element = e.currentTarget;
+    const isAtTop = element.scrollTop < 100;
+    setIsNearTop(isAtTop);
+
+    if (isAtTop && hasMoreMessages && !isLoading && onLoadMoreMessages) {
+      onLoadMoreMessages();
+    }
+  };
+
   const handleSend = () => {
     if (!messageInput.trim()) return;
 
@@ -55,6 +78,11 @@ export const ChatWindow = ({
     onSendMessage(messageInput);
     setMessageInput("");
     setIsSending(false);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMessageInput(e.target.value);
+    onTyping?.();
   };
 
   if (!selectedUser) {
@@ -95,14 +123,34 @@ export const ChatWindow = ({
             <p className="font-semibold text-foreground text-sm sm:text-base truncate">
               {selectedUser.userName || "Developer"}
             </p>
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <span className={cn(
+                "w-1.5 h-1.5 rounded-full",
+                isUserOnline ? "bg-green-500" : "bg-muted-foreground/40"
+              )} />
+              {isUserOnline ? "Online" : "Offline"}
+            </p>
           </div>
         </div>
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-4">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4" ref={messagesContainerRef} onScroll={handleScroll}>
         <div className="space-y-3 sm:space-y-4 pb-4">
-          {isLoading ? (
+          {/* Load more indicator */}
+          {hasMoreMessages && (
+            <div className="flex justify-center py-2">
+              <button
+                onClick={onLoadMoreMessages}
+                disabled={isLoading}
+                className="text-xs text-primary hover:text-primary/80 disabled:opacity-50"
+              >
+                {isLoading ? "Loading earlier messages..." : "Load earlier messages"}
+              </button>
+            </div>
+          )}
+
+          {isLoading && messages.length === 0 ? (
             <div className="flex items-center justify-center py-8 text-muted-foreground">
               <div className="flex flex-col items-center gap-2">
                 <div className="w-8 h-8 rounded-full border-2 border-muted-foreground border-t-primary animate-spin" />
@@ -174,6 +222,29 @@ export const ChatWindow = ({
               </div>
             ))
           )}
+
+          {/* Typing indicator */}
+          {isUserTyping && (
+            <div className="flex gap-3">
+              <Avatar className="w-8 h-8 flex-shrink-0">
+                {selectedUser.photoUrl ? (
+                  <AvatarImage src={selectedUser.photoUrl} alt={selectedUser.userName} />
+                ) : null}
+                <AvatarFallback className="text-xs">
+                  {selectedUser.userName?.[0]?.toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex items-end gap-1 px-4 py-2 rounded-lg bg-muted text-muted-foreground">
+                <span className="text-xs">typing</span>
+                <span className="flex gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "0s" }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "0.2s" }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "0.4s" }} />
+                </span>
+              </div>
+            </div>
+          )}
+
           <div ref={scrollRef} />
         </div>
       </div>
@@ -184,7 +255,7 @@ export const ChatWindow = ({
           <Input
             placeholder="Type a message..."
             value={messageInput}
-            onChange={(e) => setMessageInput(e.target.value)}
+            onChange={handleInputChange}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();

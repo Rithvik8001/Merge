@@ -17,10 +17,14 @@ export const Messages = () => {
     selectedUser,
     isLoadingConversations,
     isLoadingMessages,
+    isUserOnline,
+    isUserTyping,
+    hasMoreMessages,
     fetchConversations,
     selectConversation,
     sendMessage,
     clearSelection,
+    emitTyping,
   } = useChat();
 
   const [showSidebar, setShowSidebar] = useState(!userNameParam);
@@ -75,6 +79,7 @@ export const Messages = () => {
       // Navigate to the dynamic route
       navigate(`/messages/${conversation.userName}`);
       setShowSidebar(false);
+      setCurrentPage(1); // Reset pagination
     }
   };
 
@@ -88,6 +93,22 @@ export const Messages = () => {
     clearSelection();
     navigate("/messages");
     setShowSidebar(true);
+  };
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const handleLoadMoreMessages = () => {
+    if (selectedConversationId) {
+      const nextPage = currentPage + 1;
+      setCurrentPage(nextPage);
+      fetchMessages(selectedConversationId, nextPage);
+    }
+  };
+
+  const handleTyping = () => {
+    if (selectedUser) {
+      emitTyping(selectedUser.id);
+    }
   };
 
   if (!isAuthenticated) {
@@ -109,8 +130,13 @@ export const Messages = () => {
             selectedUser={selectedUser}
             messages={messages}
             isLoading={isLoadingMessages}
+            isUserOnline={isUserOnline}
+            isUserTyping={isUserTyping}
+            hasMoreMessages={hasMoreMessages}
             onSendMessage={handleSendMessage}
             onBack={handleBackFromChat}
+            onLoadMoreMessages={handleLoadMoreMessages}
+            onTyping={handleTyping}
           />
         </div>
 
@@ -128,8 +154,13 @@ export const Messages = () => {
               selectedUser={selectedUser}
               messages={messages}
               isLoading={isLoadingMessages}
+              isUserOnline={isUserOnline}
+              isUserTyping={isUserTyping}
+              hasMoreMessages={hasMoreMessages}
               onSendMessage={handleSendMessage}
               onBack={handleBackFromChat}
+              onLoadMoreMessages={handleLoadMoreMessages}
+              onTyping={handleTyping}
             />
           )}
         </div>

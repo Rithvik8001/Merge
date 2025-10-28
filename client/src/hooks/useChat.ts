@@ -41,11 +41,16 @@ interface UseChatReturn {
   selectedConversationId: string | null;
   selectedUser: ChatUser | null;
   isConnected: boolean;
+  isUserOnline: boolean;
+  isUserTyping: boolean;
+  hasMoreMessages: boolean;
   fetchConversations: () => Promise<void>;
-  fetchMessages: (conversationId: string) => Promise<void>;
+  fetchMessages: (conversationId: string, page?: number) => Promise<void>;
   selectConversation: (conversationId: string, user: ChatUser) => void;
   sendMessage: (content: string, recipientId: string) => void;
   markMessagesAsRead: (conversationId: string) => Promise<void>;
+  emitTyping: (recipientId: string) => void;
+  clearSelection: () => void;
 }
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -61,8 +66,12 @@ export const useChat = (): UseChatReturn => {
   >(null);
   const [selectedUser, setSelectedUser] = useState<ChatUser | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [isUserOnline, setIsUserOnline] = useState(false);
+  const [isUserTyping, setIsUserTyping] = useState(false);
+  const [hasMoreMessages, setHasMoreMessages] = useState(false);
 
   const socketRef = useRef<Socket | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize Socket.io connection
   useEffect(() => {
@@ -117,18 +126,30 @@ export const useChat = (): UseChatReturn => {
       toast.error(error);
     });
 
+    // Online status events
+    socketRef.current.on("user_online", (data) => {
+      setIsUserOnline(true);
+    });
+
+    socketRef.current.on("user_offline", (data) => {
+      setIsUserOnline(false);
+    });
+
     // Typing indicators
     socketRef.current.on("user_typing", (data) => {
-      // You can implement typing indicator UI here
+      setIsUserTyping(true);
     });
 
     socketRef.current.on("user_stop_typing", (data) => {
-      // Typing indicator stopped
+      setIsUserTyping(false);
     });
 
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect();
+      }
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
       }
     };
   }, []);
@@ -153,26 +174,38 @@ export const useChat = (): UseChatReturn => {
   }, []);
 
   // Fetch messages for a conversation
-  const fetchMessages = useCallback(async (conversationId: string) => {
-    try {
-      setIsLoadingMessages(true);
-      const response = await axios.get(
-        `${API_URL}/api/v1/chat/messages/${conversationId}`,
-        {
-          withCredentials: true,
-        },
-      );
+  const fetchMessages = useCallback(
+    async (conversationId: string, page: number = 1) => {
+      try {
+        setIsLoadingMessages(true);
+        const response = await axios.get(
+          `${API_URL}/api/v1/chat/messages/${conversationId}?page=${page}`,
+          {
+            withCredentials: true,
+          },
+        );
 
-      if (response.data?.data) {
-        setMessages(response.data.data);
+        if (response.data?.data) {
+          if (page === 1) {
+            // First page - replace all messages
+            setMessages(response.data.data);
+          } else {
+            // Subsequent pages - prepend to existing messages
+            setMessages((prev) => [...response.data.data, ...prev]);
+          }
+
+          // Check if there are more messages
+          setHasMoreMessages(response.data.data.length > 0);
+        }
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+        toast.error("Failed to fetch messages");
+      } finally {
+        setIsLoadingMessages(false);
       }
-    } catch (error) {
-      console.error("Error fetching messages:", error);
-      toast.error("Failed to fetch messages");
-    } finally {
-      setIsLoadingMessages(false);
-    }
-  }, []);
+    },
+    [],
+  );
 
   // Select a conversation
   const selectConversation = useCallback(
@@ -244,7 +277,31 @@ export const useChat = (): UseChatReturn => {
     setSelectedConversationId(null);
     setSelectedUser(null);
     setMessages([]);
+    setIsUserTyping(false);
+    setIsUserOnline(false);
   }, []);
+
+  // Emit typing event with debounce
+  const emitTyping = useCallback(
+    (recipientId: string) => {
+      if (!socketRef.current || !socketRef.current.connected) return;
+
+      socketRef.current.emit("typing", { recipientId });
+
+      // Clear previous timeout
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+
+      // Set new timeout to emit stop_typing after 1 second of inactivity
+      typingTimeoutRef.current = setTimeout(() => {
+        if (socketRef.current && socketRef.current.connected) {
+          socketRef.current.emit("stop_typing", { recipientId });
+        }
+      }, 1000);
+    },
+    [],
+  );
 
   return {
     conversations,
@@ -254,11 +311,15 @@ export const useChat = (): UseChatReturn => {
     selectedConversationId,
     selectedUser,
     isConnected,
+    isUserOnline,
+    isUserTyping,
+    hasMoreMessages,
     fetchConversations,
     fetchMessages,
     selectConversation,
     sendMessage,
     markMessagesAsRead,
+    emitTyping,
     clearSelection,
   };
 };
