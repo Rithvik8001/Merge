@@ -11,6 +11,7 @@ import profileRouter from "../src/api/routes/profile/route.ts";
 import chatRouter from "../src/api/routes/chat/route.ts";
 import errorHandler from "./api/middlewares/errorHandler.ts";
 import initializeSocket from "./socket/socket-config.ts";
+import { globalRateLimiter } from "./api/middlewares/rateLimiter.ts";
 
 const app: Express = express();
 const httpServer = createServer(app);
@@ -31,6 +32,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
+
+// Apply global rate limiting to all requests
+app.use(globalRateLimiter);
 
 // routes
 app.use("/api/v1/auth", authRouter);

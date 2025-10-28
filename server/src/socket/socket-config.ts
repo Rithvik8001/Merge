@@ -7,10 +7,19 @@ import { saveMessageToDb, getOrCreateConversation } from "./message-service.ts";
 interface AuthenticatedSocket extends Socket {
   userId?: string;
   email?: string;
+  lastMessageTime?: number;
+  messageCount?: number;
+  lastTypingTime?: number;
 }
 
 // Store active user connections
 export const userConnections: Map<string, string> = new Map(); // userId -> socketId
+
+// Rate limiting constants for Socket.io
+const MESSAGE_RATE_LIMIT = 1; // 1 message per second minimum
+const TYPING_RATE_LIMIT = 5; // 5 typing events per 5 seconds
+const MESSAGE_WINDOW = 1000; // 1 second window
+const TYPING_WINDOW = 5000; // 5 seconds window
 
 const JWT_SECRET = process.env.JWT_SECRET_KEY;
 
@@ -63,7 +72,7 @@ export const initializeSocket = (httpServer: HTTPServer) => {
       socket.join(`user:${socket.userId}`);
     }
 
-    // Send message event
+    // Send message event with rate limiting
     socket.on("send_message", async (data) => {
       try {
         const { conversationId, content, recipientId } = data;
@@ -72,6 +81,20 @@ export const initializeSocket = (httpServer: HTTPServer) => {
           socket.emit("error", "Missing required fields");
           return;
         }
+
+        // Rate limiting: Check message frequency
+        const now = Date.now();
+        if (socket.lastMessageTime) {
+          const timeSinceLastMessage = now - socket.lastMessageTime;
+          if (timeSinceLastMessage < MESSAGE_RATE_LIMIT * MESSAGE_WINDOW) {
+            socket.emit(
+              "error",
+              "Message rate limit exceeded. Please wait before sending another message."
+            );
+            return;
+          }
+        }
+        socket.lastMessageTime = now;
 
         let convId = conversationId;
 
@@ -126,16 +149,29 @@ export const initializeSocket = (httpServer: HTTPServer) => {
       }
     });
 
-    // Typing indicator event
+    // Typing indicator event with rate limiting
     socket.on("typing", (data) => {
       const { conversationId, recipientId } = data;
 
-      if (recipientId && conversationId) {
-        io.to(`user:${recipientId}`).emit("user_typing", {
-          conversationId,
-          userId: socket.userId,
-        });
+      if (!recipientId || !conversationId) {
+        return;
       }
+
+      // Rate limiting: Allow max 5 typing events per 5 seconds
+      const now = Date.now();
+      if (socket.lastTypingTime) {
+        const timeSinceLastTyping = now - socket.lastTypingTime;
+        if (timeSinceLastTyping < TYPING_WINDOW / TYPING_RATE_LIMIT) {
+          // Skip this typing event if too frequent
+          return;
+        }
+      }
+      socket.lastTypingTime = now;
+
+      io.to(`user:${recipientId}`).emit("user_typing", {
+        conversationId,
+        userId: socket.userId,
+      });
     });
 
     // Stop typing event
@@ -147,6 +183,7 @@ export const initializeSocket = (httpServer: HTTPServer) => {
           conversationId,
           userId: socket.userId,
         });
+        socket.lastTypingTime = undefined; // Reset typing timer
       }
     });
 
