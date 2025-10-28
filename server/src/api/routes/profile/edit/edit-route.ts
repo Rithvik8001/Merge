@@ -1,5 +1,5 @@
 import { Router, type Router as ExpressRouter } from "express";
-import editProfileController from "../../../controllers/edit-profile-controller.ts";
+import editProfileController from "../../../controllers/edit-profile-controller";
 
 const editRoute: ExpressRouter = Router();
 

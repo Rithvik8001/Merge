@@ -1,11 +1,11 @@
 import { Router, type Router as ExpressRouter } from "express";
-import authMiddleware from "../../middlewares/auth.ts";
-import sendRouter from "./send/send-route.ts";
-import receiveRouter from "./receive/receive-route.ts";
-import receivedRequestsRouter from "./received-requests/received-requests-route.ts";
-import acceptedConnectionsRouter from "./accepted-connections/accepted-connections-route.ts";
-import userFeedRouter from "./user-feed/user-feed-route.ts";
-import { connectionRateLimiter } from "../../middlewares/rateLimiter.ts";
+import authMiddleware from "../../middlewares/auth";
+import sendRouter from "./send/send-route";
+import receiveRouter from "./receive/receive-route";
+import receivedRequestsRouter from "./received-requests/received-requests-route";
+import acceptedConnectionsRouter from "./accepted-connections/accepted-connections-route";
+import userFeedRouter from "./user-feed/user-feed-route";
+import { connectionRateLimiter } from "../../middlewares/rateLimiter";
 
 const connectionRouter: ExpressRouter = Router();
 

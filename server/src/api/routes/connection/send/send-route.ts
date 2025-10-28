@@ -1,5 +1,5 @@
 import { Router, type Router as ExpressRouter } from "express";
-import sendConnectionController from "../../../controllers/send-connection-controller.ts";
+import sendConnectionController from "../../../controllers/send-connection-controller";
 
 const send: ExpressRouter = Router();
 

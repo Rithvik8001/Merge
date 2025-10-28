@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
-import User from "../../db/models/user.ts";
-import AppError from "../../utils/AppError.ts";
-import { editProfileValidation } from "../validations/profile-validation.ts";
-import handleZodError from "../../utils/zodErrorHandler.ts";
+import User from "../../db/models/user";
+import AppError from "../../utils/AppError";
+import { editProfileValidation } from "../validations/profile-validation";
+import handleZodError from "../../utils/zodErrorHandler";
 
 const editProfileController = async (req: Request, res: Response) => {
   try {

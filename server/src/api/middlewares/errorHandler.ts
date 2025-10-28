@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import AppError from "../../utils/AppError.ts";
+import AppError from "../../utils/AppError";
 
 interface ErrorResponse {
   success: false;

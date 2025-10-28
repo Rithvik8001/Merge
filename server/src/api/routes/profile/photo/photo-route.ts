@@ -1,6 +1,6 @@
 import { Router, type Router as ExpressRouter } from "express";
 import multer from "multer";
-import photoUploadController from "../../../controllers/photo-upload-controller.ts";
+import photoUploadController from "../../../controllers/photo-upload-controller";
 
 const photoRoute: ExpressRouter = Router();
 

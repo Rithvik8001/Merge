@@ -1,10 +1,10 @@
 import { Router, type Router as ExpressRouter } from "express";
-import authMiddleware from "../../middlewares/auth.ts";
-import viewRoute from "./view/view-route.ts";
-import editRoute from "./edit/edit-route.ts";
-import passwordRoute from "./password/password-route.ts";
-import photoRoute from "./photo/photo-route.ts";
-import { profileRateLimiter } from "../../middlewares/rateLimiter.ts";
+import authMiddleware from "../../middlewares/auth";
+import viewRoute from "./view/view-route";
+import editRoute from "./edit/edit-route";
+import passwordRoute from "./password/password-route";
+import photoRoute from "./photo/photo-route";
+import { profileRateLimiter } from "../../middlewares/rateLimiter";
 
 const profileRouter: ExpressRouter = Router();
 

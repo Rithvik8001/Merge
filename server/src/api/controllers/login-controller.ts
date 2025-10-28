@@ -1,10 +1,10 @@
 import type { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import loginValidation from "../validations/login-validation.ts";
-import handleZodError from "../../utils/zodErrorHandler.ts";
-import User from "../../db/models/user.ts";
-import AppError from "../../utils/AppError.ts";
+import loginValidation from "../validations/login-validation";
+import handleZodError from "../../utils/zodErrorHandler";
+import User from "../../db/models/user";
+import AppError from "../../utils/AppError";
 
 const loginController = async (req: Request, res: Response) => {
   const result = await loginValidation(req.body);

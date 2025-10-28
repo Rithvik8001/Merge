@@ -1,6 +1,6 @@
 import { Router, type Router as ExpressRouter } from "express";
-import getMessagesController from "../../../controllers/get-messages-controller.ts";
-import markMessagesAsReadController from "../../../controllers/mark-messages-read-controller.ts";
+import getMessagesController from "../../../controllers/get-messages-controller";
+import markMessagesAsReadController from "../../../controllers/mark-messages-read-controller";
 
 const messagesRoute: ExpressRouter = Router();
 

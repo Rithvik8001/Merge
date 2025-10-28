@@ -1,5 +1,5 @@
 import { Router } from "express";
-import signoutController from "../../../controllers/signout-controller.ts";
+import signoutController from "../../../controllers/signout-controller";
 
 const signout: Router = Router();
 

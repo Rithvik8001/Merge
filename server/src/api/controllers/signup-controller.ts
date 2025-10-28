@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 import bcrypt from "bcrypt";
-import signupValidation from "../validations/signup-validation.ts";
-import User from "../../db/models/user.ts";
-import AppError from "../../utils/AppError.ts";
-import handleZodError from "../../utils/zodErrorHandler.ts";
+import signupValidation from "../validations/signup-validation";
+import User from "../../db/models/user";
+import AppError from "../../utils/AppError";
+import handleZodError from "../../utils/zodErrorHandler";
 
 const signupController = async (req: Request, res: Response) => {
   try {

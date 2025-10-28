@@ -1,5 +1,5 @@
 import { Router, type Router as ExpressRouter } from "express";
-import viewProfileController from "../../../controllers/view-profile-controller.ts";
+import viewProfileController from "../../../controllers/view-profile-controller";
 
 const viewRoute: ExpressRouter = Router();
 

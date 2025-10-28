@@ -1,5 +1,5 @@
 import { Router, type Router as ExpressRouter } from "express";
-import userFeedController from "../../../controllers/user-feed-controller.ts";
+import userFeedController from "../../../controllers/user-feed-controller";
 
 const userFeedRouter: ExpressRouter = Router();
 

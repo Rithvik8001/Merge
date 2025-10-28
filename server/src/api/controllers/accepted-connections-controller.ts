@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
-import Connection from "../../db/models/connection.ts";
-import AppError from "../../utils/AppError.ts";
-import { validateAcceptedConnections } from "../validations/connection-validation.ts";
-import handleZodError from "../../utils/zodErrorHandler.ts";
+import Connection from "../../db/models/connection";
+import AppError from "../../utils/AppError";
+import { validateAcceptedConnections } from "../validations/connection-validation";
+import handleZodError from "../../utils/zodErrorHandler";
 
 const acceptedConnectionsController = async (req: Request, res: Response) => {
   try {

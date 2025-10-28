@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import AppError from "../../utils/AppError.ts";
+import AppError from "../../utils/AppError";
 
 declare global {
   namespace Express {

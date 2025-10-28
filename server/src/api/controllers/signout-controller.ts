@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import AppError from "../../utils/AppError.ts";
+import AppError from "../../utils/AppError";
 
 const signoutController = async (req: Request, res: Response) => {
   try {
