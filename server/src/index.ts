@@ -1,5 +1,6 @@
 import express from "express";
 import type { Express } from "express";
+import { createServer } from "http";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import "dotenv/config";
@@ -9,8 +10,13 @@ import connectionRouter from "../src/api/routes/connection/route.ts";
 import profileRouter from "../src/api/routes/profile/route.ts";
 import chatRouter from "../src/api/routes/chat/route.ts";
 import errorHandler from "./api/middlewares/errorHandler.ts";
+import initializeSocket from "./socket/socket-config.ts";
 
 const app: Express = express();
+const httpServer = createServer(app);
+
+// Initialize Socket.io
+initializeSocket(httpServer);
 
 const PORT = process.env.PORT;
 
@@ -39,8 +45,9 @@ const startServer = async () => {
     await connectDb();
     console.log("Connected to Database");
 
-    app.listen(PORT, () => {
+    httpServer.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
+      console.log(`WebSocket (Socket.io) ready`);
     });
   } catch (error) {
     console.error("Failed to start server:", error);
