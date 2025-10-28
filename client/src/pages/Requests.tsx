@@ -137,12 +137,8 @@ export const Requests = () => {
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-foreground line-clamp-1">
                             {request.fromUserId?.userName ||
-                              request.fromUserId?.email?.split("@")[0] ||
                               "Developer"}
                           </h3>
-                          <p className="text-xs text-muted-foreground line-clamp-1">
-                            {request.fromUserId?.email}
-                          </p>
 
                           {/* Info */}
                           <div className="mt-2 space-y-2">

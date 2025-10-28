@@ -95,9 +95,6 @@ export const ProfileModal = ({
                 <h2 className="text-xl font-bold text-foreground line-clamp-1">
                   {profile.userName || "Developer"}
                 </h2>
-                <p className="text-sm text-muted-foreground line-clamp-1 mt-1">
-                  {profile.email}
-                </p>
 
                 {/* Info */}
                 <div className="mt-3 space-y-2">

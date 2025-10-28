@@ -90,9 +90,8 @@ export const ChatWindow = ({
           </Avatar>
           <div>
             <p className="font-semibold text-foreground">
-              {selectedUser.userName || selectedUser.email.split("@")[0]}
+              {selectedUser.userName || "Developer"}
             </p>
-            <p className="text-xs text-muted-foreground">{selectedUser.email}</p>
           </div>
         </div>
       </div>

@@ -140,9 +140,6 @@ export const Dashboard = () => {
                                 {dev.userName || "Developer"}
                               </h3>
                             </button>
-                            <p className="text-xs text-muted-foreground line-clamp-1">
-                              {dev.email}
-                            </p>
                           </div>
                         </div>
 

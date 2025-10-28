@@ -32,8 +32,7 @@ export const ChatSidebar = ({
 
   const filteredConversations = conversations.filter(
     (conv) =>
-      conv.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      conv.email.toLowerCase().includes(searchQuery.toLowerCase())
+      conv.userName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
