@@ -36,6 +36,16 @@ app.use(cookieParser());
 // Apply global rate limiting to all requests
 app.use(globalRateLimiter);
 
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV,
+  });
+});
+
 // routes
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/connection", connectionRouter);
