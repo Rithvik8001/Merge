@@ -11,7 +11,7 @@ import {
   useProfileModal,
   type AcceptedConnection,
 } from "@/hooks";
-import { Loader2, MessageSquare } from "lucide-react";
+import { Loader2, MessageSquare, MessageCircle } from "lucide-react";
 
 export const Connections = () => {
   const navigate = useNavigate();

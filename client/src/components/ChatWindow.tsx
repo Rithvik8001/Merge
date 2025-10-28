@@ -13,6 +13,7 @@ interface Message {
   content: string;
   timestamp: string;
   isOwn: boolean;
+  isRead?: boolean;
 }
 
 interface ChatUser {
@@ -51,7 +52,6 @@ export const ChatWindow = ({
   const [isSending, setIsSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const [isNearTop, setIsNearTop] = useState(false);
 
   // Auto-scroll to latest message
   useEffect(() => {
@@ -64,7 +64,6 @@ export const ChatWindow = ({
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const element = e.currentTarget;
     const isAtTop = element.scrollTop < 100;
-    setIsNearTop(isAtTop);
 
     if (isAtTop && hasMoreMessages && !isLoading && onLoadMoreMessages) {
       onLoadMoreMessages();

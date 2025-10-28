@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { ModeToggle } from "@/components/mode-toggle";

@@ -129,7 +129,7 @@ export const useSignup = (): UseSignupReturn => {
         throw new Error("Please enter a valid email address");
       }
 
-      const response = await apiClient.post<SignupResponse>(
+      await apiClient.post<SignupResponse>(
         "/api/v1/auth/signup",
         {
           userName: data.userName,

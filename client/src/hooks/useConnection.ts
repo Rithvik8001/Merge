@@ -17,6 +17,7 @@ export interface ConnectionRequest {
     gender?: string;
     about?: string;
     skills?: string[];
+    photoUrl?: string;
     createdAt: string;
   };
   toUserId: string;
@@ -34,6 +35,7 @@ export interface AcceptedConnection {
     gender?: string;
     about?: string;
     skills?: string[];
+    photoUrl?: string;
     createdAt: string;
   };
   status: "accepted";

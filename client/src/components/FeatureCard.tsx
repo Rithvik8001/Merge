@@ -1,7 +1,7 @@
-import { createLucideIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 interface FeatureCardProps {
-  icon: createLucideIcon;
+  icon: LucideIcon;
   title: string;
   description: string;
 }

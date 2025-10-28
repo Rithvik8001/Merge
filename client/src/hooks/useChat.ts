@@ -71,7 +71,7 @@ export const useChat = (): UseChatReturn => {
   const [hasMoreMessages, setHasMoreMessages] = useState(false);
 
   const socketRef = useRef<Socket | null>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Initialize Socket.io connection
   useEffect(() => {
@@ -127,20 +127,20 @@ export const useChat = (): UseChatReturn => {
     });
 
     // Online status events
-    socketRef.current.on("user_online", (data) => {
+    socketRef.current.on("user_online", () => {
       setIsUserOnline(true);
     });
 
-    socketRef.current.on("user_offline", (data) => {
+    socketRef.current.on("user_offline", () => {
       setIsUserOnline(false);
     });
 
     // Typing indicators
-    socketRef.current.on("user_typing", (data) => {
+    socketRef.current.on("user_typing", () => {
       setIsUserTyping(true);
     });
 
-    socketRef.current.on("user_stop_typing", (data) => {
+    socketRef.current.on("user_stop_typing", () => {
       setIsUserTyping(false);
     });
 

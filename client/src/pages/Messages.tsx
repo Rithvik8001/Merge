@@ -21,6 +21,7 @@ export const Messages = () => {
     isUserTyping,
     hasMoreMessages,
     fetchConversations,
+    fetchMessages,
     selectConversation,
     sendMessage,
     clearSelection,
