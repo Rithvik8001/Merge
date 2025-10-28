@@ -37,6 +37,10 @@ const userSchema = new Schema(
     skills: {
       type: [String],
     },
+    photoUrl: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true },
 );

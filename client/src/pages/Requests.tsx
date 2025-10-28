@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { ProfileModal } from "@/components/ProfileModal";
@@ -125,6 +125,9 @@ export const Requests = () => {
                           className="flex-shrink-0 hover:opacity-80 transition-opacity"
                         >
                           <Avatar className="w-12 h-12">
+                            {request.fromUserId?.photoUrl ? (
+                              <AvatarImage src={request.fromUserId.photoUrl} alt={request.fromUserId.userName} />
+                            ) : null}
                             <AvatarFallback className="bg-muted text-foreground font-semibold">
                               {request.fromUserId?.userName?.[0]?.toUpperCase() ||
                                 request.fromUserId?.email[0].toUpperCase()}

@@ -1,2 +1,4 @@
 onlyBuiltDependencies:
   - bcrypt
+  - bufferutil
+  - utf-8-validate

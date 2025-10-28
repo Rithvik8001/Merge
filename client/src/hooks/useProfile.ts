@@ -15,6 +15,7 @@ export interface UserProfile {
   gender?: string;
   about?: string;
   skills?: string[];
+  photoUrl?: string;
   createdAt: string;
   updatedAt: string;
 }

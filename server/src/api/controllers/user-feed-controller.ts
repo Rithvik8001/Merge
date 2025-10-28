@@ -66,6 +66,7 @@ const userFeedController = async (req: Request, res: Response) => {
         gender: user.gender || undefined,
         about: user.about,
         skills: user.skills || [],
+        photoUrl: user.photoUrl || undefined,
         createdAt: user.createdAt,
       })),
       pagination: {

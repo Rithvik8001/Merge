@@ -25,7 +25,7 @@ const receivedRequestsController = async (req: Request, res: Response) => {
     })
       .populate(
         "fromUserId",
-        "userName email age gender about skills createdAt",
+        "userName email age gender about skills photoUrl createdAt",
       )
       .sort({ createdAt: -1 });
 

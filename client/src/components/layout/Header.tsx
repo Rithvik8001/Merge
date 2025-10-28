@@ -1,12 +1,28 @@
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Menu, LogOut } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/store/authStore";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import logo from "@/assets/logo.png";
 import { ModeToggle } from "@/components/mode-toggle";
 
 export const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuthStore();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
 
   return (
     <header className="border-b border-l border-r border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
@@ -53,22 +69,89 @@ export const Header = () => {
           </a>
         </nav>
 
-        <div className="hidden md:flex items-center gap-2 flex-1 justify-end">
+        <div className="hidden md:flex items-center gap-3 flex-1 justify-end">
           <ModeToggle />
-          <Link to="/login">
-            <Button variant="outline" size="sm">
-              Sign in
-            </Button>
-          </Link>
-          <Link to="/signup">
-            <Button size="sm">Get started</Button>
-          </Link>
+          {isAuthenticated && user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 w-9 rounded-lg p-0 hover:bg-muted"
+                >
+                  <Avatar className="w-8 h-8">
+                    {user.photoUrl ? (
+                      <AvatarImage src={user.photoUrl} alt={user.userName} />
+                    ) : null}
+                    <AvatarFallback className="text-xs font-bold">
+                      {user.userName?.[0]?.toUpperCase() ||
+                        user.email[0].toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem
+                  onClick={() => navigate("/dashboard")}
+                  className="cursor-pointer"
+                >
+                  <span>Dashboard</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => navigate("/profile")}
+                  className="cursor-pointer"
+                >
+                  <span>My Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="outline" size="sm">
+                  Sign in
+                </Button>
+              </Link>
+              <Link to="/signup">
+                <Button size="sm">Get started</Button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu */}
         {isOpen && (
           <div className="absolute top-16 left-0 right-0 bg-background border-b border-border md:hidden">
             <nav className="flex flex-col gap-4 p-4">
+              {isAuthenticated && user && (
+                <div className="flex items-center gap-3 pb-4 border-b border-border/50">
+                  <Avatar className="w-10 h-10">
+                    {user.photoUrl ? (
+                      <AvatarImage src={user.photoUrl} alt={user.userName} />
+                    ) : null}
+                    <AvatarFallback className="text-xs font-bold">
+                      {user.userName?.[0]?.toUpperCase() ||
+                        user.email[0].toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-sm font-semibold text-foreground truncate">
+                      {user.userName || "Developer"}
+                    </span>
+                    <span className="text-xs text-muted-foreground truncate">
+                      {user.email}
+                    </span>
+                  </div>
+                </div>
+              )}
               <a
                 href="#features"
                 onClick={(e) => {
@@ -101,16 +184,51 @@ export const Header = () => {
                   <ModeToggle />
                 </div>
               </div>
-              <Link to="/login" className="w-full">
-                <Button variant="outline" size="sm" className="justify-start w-full">
-                  Sign in
-                </Button>
-              </Link>
-              <Link to="/signup" className="w-full">
-                <Button size="sm" className="w-full">
-                  Get started
-                </Button>
-              </Link>
+              {isAuthenticated && user ? (
+                <>
+                  <button
+                    onClick={() => {
+                      setIsOpen(false);
+                      navigate("/dashboard");
+                    }}
+                    className="text-left text-sm text-muted-foreground hover:text-foreground transition-colors w-full py-2"
+                  >
+                    Dashboard
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsOpen(false);
+                      navigate("/profile");
+                    }}
+                    className="text-left text-sm text-muted-foreground hover:text-foreground transition-colors w-full py-2"
+                  >
+                    My Profile
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsOpen(false);
+                      handleLogout();
+                    }}
+                    className="text-left text-sm text-destructive hover:text-destructive transition-colors w-full py-2 flex items-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" className="w-full">
+                    <Button variant="outline" size="sm" className="justify-start w-full">
+                      Sign in
+                    </Button>
+                  </Link>
+                  <Link to="/signup" className="w-full">
+                    <Button size="sm" className="w-full">
+                      Get started
+                    </Button>
+                  </Link>
+                </>
+              )}
             </nav>
           </div>
         )}

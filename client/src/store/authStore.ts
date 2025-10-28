@@ -5,6 +5,7 @@ export interface User {
   userId: string;
   email: string;
   userName?: string;
+  photoUrl?: string;
 }
 
 export interface AuthStore {
@@ -64,6 +65,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
                 userId: response.data.data.id || user.userId,
                 email: response.data.data.email,
                 userName: response.data.data.userName,
+                photoUrl: response.data.data.photoUrl,
               };
 
               set({

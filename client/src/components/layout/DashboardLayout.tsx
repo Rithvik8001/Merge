@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { ModeToggle } from "@/components/mode-toggle";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sidebar,
   SidebarContent,
@@ -121,11 +122,16 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
                   className="w-full justify-start px-4 py-3 h-auto hover:bg-muted/50 transition-all duration-200"
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="w-10 h-10 bg-linear-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center text-xs font-bold text-primary shrink-0 border border-primary/20">
-                      {user?.userName?.[0]?.toUpperCase() ||
-                        user?.email?.[0]?.toUpperCase() ||
-                        "U"}
-                    </div>
+                    <Avatar className="w-10 h-10 flex-shrink-0">
+                      {user?.photoUrl ? (
+                        <AvatarImage src={user.photoUrl} alt={user.userName} />
+                      ) : null}
+                      <AvatarFallback className="bg-linear-to-br from-primary/20 to-primary/10 border border-primary/20 text-xs font-bold text-primary">
+                        {user?.userName?.[0]?.toUpperCase() ||
+                          user?.email?.[0]?.toUpperCase() ||
+                          "U"}
+                      </AvatarFallback>
+                    </Avatar>
                     <div className="flex flex-col min-w-0 text-left">
                       <span className="text-sm font-semibold text-foreground truncate">
                         {user?.userName || "Developer"}
@@ -216,11 +222,16 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
                     size="sm"
                     className="h-10 w-10 rounded-lg p-0 hover:bg-muted"
                   >
-                    <div className="w-6 h-6 bg-linear-to-br from-primary/20 to-primary/10 rounded-lg flex items-center justify-center text-xs font-bold text-primary">
-                      {user?.userName?.[0]?.toUpperCase() ||
-                        user?.email?.[0]?.toUpperCase() ||
-                        "U"}
-                    </div>
+                    <Avatar className="w-6 h-6">
+                      {user?.photoUrl ? (
+                        <AvatarImage src={user.photoUrl} alt={user.userName} />
+                      ) : null}
+                      <AvatarFallback className="bg-linear-to-br from-primary/20 to-primary/10 text-xs font-bold text-primary rounded-md">
+                        {user?.userName?.[0]?.toUpperCase() ||
+                          user?.email?.[0]?.toUpperCase() ||
+                          "U"}
+                      </AvatarFallback>
+                    </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
 

@@ -10,6 +10,7 @@ import profileRouter from "../src/api/routes/profile/route.ts";
 import errorHandler from "./api/middlewares/errorHandler.ts";
 
 const app: Express = express();
+
 const PORT = process.env.PORT;
 
 // CORS configuration

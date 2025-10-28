@@ -1,23 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useAuthStore } from "@/store/authStore";
 import { useProfile, type UserProfile } from "@/hooks/useProfile";
-import { Loader2, Mail, Edit2, X } from "lucide-react";
+import { usePhotoUpload } from "@/hooks/usePhotoUpload";
+import { Loader2, Mail, Edit2, X, Camera } from "lucide-react";
 import { toast } from "sonner";
 
 export const Profile = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
   const { viewProfile, editProfile, isLoading } = useProfile();
+  const { uploadPhoto, isLoading: isUploading } = usePhotoUpload();
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -113,6 +117,37 @@ export const Profile = () => {
       });
     }
     setIsEditing(false);
+    setPhotoPreview(null);
+  };
+
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handlePhotoUpload = async () => {
+    const file = fileInputRef.current?.files?.[0];
+    if (!file) {
+      toast.error("Please select a photo first");
+      return;
+    }
+
+    const photoUrl = await uploadPhoto(file);
+    if (photoUrl && user?.userId) {
+      // Refresh profile with new photo
+      const data = await viewProfile(user.userId);
+      setProfile(data);
+      setPhotoPreview(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
   };
 
   if (!isAuthenticated) {
@@ -156,12 +191,33 @@ export const Profile = () => {
                 <div className="bg-card border border-border rounded-lg p-6 sm:p-8">
                   {/* Avatar Section */}
                   <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-8 pb-8 border-b border-border">
-                    <Avatar className="w-20 h-20 flex-shrink-0">
-                      <AvatarFallback className="bg-muted text-foreground font-semibold text-lg">
-                        {profile.userName?.[0]?.toUpperCase() ||
-                          profile.email[0].toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
+                    <div className="relative">
+                      <Avatar className="w-20 h-20 flex-shrink-0">
+                        {photoPreview || profile.photoUrl ? (
+                          <AvatarImage src={photoPreview || profile.photoUrl} alt="Profile" />
+                        ) : null}
+                        <AvatarFallback className="bg-muted text-foreground font-semibold text-lg">
+                          {profile.userName?.[0]?.toUpperCase() ||
+                            profile.email[0].toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      {isEditing && (
+                        <button
+                          onClick={() => fileInputRef.current?.click()}
+                          className="absolute bottom-0 right-0 bg-primary text-primary-foreground rounded-full p-2 hover:bg-primary/90 transition-colors"
+                          disabled={isUploading}
+                        >
+                          <Camera size={14} />
+                        </button>
+                      )}
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePhotoSelect}
+                        className="hidden"
+                      />
+                    </div>
 
                     <div className="flex-1">
                       <p className="text-xs text-muted-foreground mb-2">
@@ -282,11 +338,28 @@ export const Profile = () => {
                         </p>
                       </div>
 
+                      {/* Photo Upload Section */}
+                      {photoPreview && (
+                        <div className="bg-muted p-4 rounded-md border border-border">
+                          <p className="text-sm text-muted-foreground mb-3">
+                            Photo selected. Click below to upload.
+                          </p>
+                          <Button
+                            onClick={handlePhotoUpload}
+                            disabled={isUploading}
+                            className="w-full"
+                            variant="secondary"
+                          >
+                            {isUploading ? "Uploading..." : "Upload Photo"}
+                          </Button>
+                        </div>
+                      )}
+
                       {/* Action Buttons */}
                       <div className="flex gap-3 pt-6 border-t border-border">
                         <Button
                           onClick={handleSave}
-                          disabled={isSaving}
+                          disabled={isSaving || isUploading}
                           className="flex-1"
                         >
                           {isSaving ? "Saving..." : "Save Changes"}
@@ -294,7 +367,7 @@ export const Profile = () => {
                         <Button
                           onClick={handleCancel}
                           variant="outline"
-                          disabled={isSaving}
+                          disabled={isSaving || isUploading}
                           className="flex-1 gap-2"
                         >
                           <X size={16} />

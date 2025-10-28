@@ -27,9 +27,9 @@ const acceptedConnectionsController = async (req: Request, res: Response) => {
     })
       .populate(
         "fromUserId",
-        "userName email age gender about skills createdAt",
+        "userName email age gender about skills photoUrl createdAt",
       )
-      .populate("toUserId", "userName email age gender about skills createdAt")
+      .populate("toUserId", "userName email age gender about skills photoUrl createdAt")
       .sort({ actionAt: -1 });
 
     const formattedConnections = acceptedConnections.map((connection) => {

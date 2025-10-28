@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -83,6 +83,9 @@ export const ProfileModal = ({
             {/* Avatar and Header */}
             <div className="flex items-start gap-4">
               <Avatar className="w-16 h-16 flex-shrink-0">
+                {profile.photoUrl ? (
+                  <AvatarImage src={profile.photoUrl} alt={profile.userName} />
+                ) : null}
                 <AvatarFallback className="bg-muted text-foreground font-semibold text-lg">
                   {profile.userName?.[0]?.toUpperCase() ||
                     profile.email[0].toUpperCase()}
