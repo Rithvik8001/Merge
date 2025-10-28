@@ -16,6 +16,9 @@ import { globalRateLimiter } from "./api/middlewares/rateLimiter.js";
 const app: Express = express();
 const httpServer = createServer(app);
 
+// Trust proxy
+app.set("trust proxy", 1);
+
 // Initialize Socket.io
 initializeSocket(httpServer);
 
