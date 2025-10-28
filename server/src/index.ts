@@ -7,6 +7,7 @@ import { connectDb } from "./db/config/connection.ts";
 import authRouter from "../src/api/routes/auth/route.ts";
 import connectionRouter from "../src/api/routes/connection/route.ts";
 import profileRouter from "../src/api/routes/profile/route.ts";
+import chatRouter from "../src/api/routes/chat/route.ts";
 import errorHandler from "./api/middlewares/errorHandler.ts";
 
 const app: Express = express();
@@ -29,6 +30,7 @@ app.use(cookieParser());
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/connection", connectionRouter);
 app.use("/api/v1/profile", profileRouter);
+app.use("/api/v1/chat", chatRouter);
 
 app.use(errorHandler);
 
