@@ -1,8 +1,10 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ChatSidebar } from "@/components/ChatSidebar";
+import { ChatWindow } from "@/components/ChatWindow";
 import {
   Sidebar,
   SidebarContent,
@@ -27,6 +29,7 @@ import {
   ChevronDown,
   Sparkles,
   Menu,
+  MessageCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +43,89 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuthStore();
+
+  // Chat state (for now with mock data)
+  const [showChat, setShowChat] = useState(false);
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+
+  // Mock conversations data
+  const mockConversations = [
+    {
+      id: "conv1",
+      userId: "user1",
+      userName: "John Developer",
+      email: "john@dev.com",
+      photoUrl: undefined,
+      lastMessage: "Hey! How are you doing?",
+      lastMessageTime: "2:30 PM",
+      unreadCount: 2,
+    },
+    {
+      id: "conv2",
+      userId: "user2",
+      userName: "Sarah Code",
+      email: "sarah@dev.com",
+      photoUrl: undefined,
+      lastMessage: "Let's collaborate on that project",
+      lastMessageTime: "1:15 PM",
+      unreadCount: 0,
+    },
+  ];
+
+  // Mock messages data
+  const mockMessages = [
+    {
+      id: "msg1",
+      senderId: "user1",
+      senderName: "John Developer",
+      senderPhoto: undefined,
+      content: "Hey! How are you doing?",
+      timestamp: "2:25 PM",
+      isOwn: false,
+    },
+    {
+      id: "msg2",
+      senderId: "current-user",
+      senderName: "You",
+      senderPhoto: undefined,
+      content: "I'm doing great! How about you?",
+      timestamp: "2:26 PM",
+      isOwn: true,
+    },
+    {
+      id: "msg3",
+      senderId: "user1",
+      senderName: "John Developer",
+      senderPhoto: undefined,
+      content: "Same! Want to work on something cool together?",
+      timestamp: "2:30 PM",
+      isOwn: false,
+    },
+  ];
+
+  const handleSelectConversation = (conversationId: string) => {
+    setSelectedConversationId(conversationId);
+    const conversation = mockConversations.find(c => c.id === conversationId);
+    if (conversation) {
+      setSelectedUser({
+        id: conversation.userId,
+        userName: conversation.userName,
+        email: conversation.email,
+        photoUrl: conversation.photoUrl,
+      });
+    }
+  };
+
+  const handleSendMessage = (content: string) => {
+    console.log("Send message:", content);
+    // Will be implemented with Socket.io later
+  };
+
+  const handleBackFromChat = () => {
+    setSelectedConversationId(null);
+    setSelectedUser(null);
+  };
 
   const navItems: NavItem[] = [
     {
@@ -56,6 +142,11 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
       title: "Connections",
       url: "/connections",
       icon: Users,
+    },
+    {
+      title: "Messages",
+      url: "#messages",
+      icon: MessageCircle,
     },
   ];
 
@@ -80,10 +171,16 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
                 return (
                   <button
                     key={item.url}
-                    onClick={() => navigate(item.url)}
+                    onClick={() => {
+                      if (item.title === "Messages") {
+                        setShowChat(!showChat);
+                      } else {
+                        navigate(item.url);
+                      }
+                    }}
                     className={cn(
                       "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 group relative",
-                      isActive
+                      (isActive || (item.title === "Messages" && showChat))
                         ? "bg-primary/10 text-primary"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
                     )}
@@ -297,7 +394,44 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-auto">{children}</div>
+          {showChat ? (
+            <div className="flex-1 flex bg-background">
+              {/* Desktop - Show sidebar on left */}
+              <div className="hidden md:flex flex-1">
+                <ChatSidebar
+                  conversations={mockConversations}
+                  selectedConversationId={selectedConversationId}
+                  onSelectConversation={handleSelectConversation}
+                />
+                <ChatWindow
+                  selectedUser={selectedUser}
+                  messages={mockMessages}
+                  onSendMessage={handleSendMessage}
+                  onBack={handleBackFromChat}
+                />
+              </div>
+
+              {/* Mobile - Show either sidebar or chat */}
+              <div className="flex-1 md:hidden">
+                {selectedConversationId ? (
+                  <ChatWindow
+                    selectedUser={selectedUser}
+                    messages={mockMessages}
+                    onSendMessage={handleSendMessage}
+                    onBack={handleBackFromChat}
+                  />
+                ) : (
+                  <ChatSidebar
+                    conversations={mockConversations}
+                    selectedConversationId={selectedConversationId}
+                    onSelectConversation={handleSelectConversation}
+                  />
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 overflow-auto">{children}</div>
+          )}
         </main>
       </div>
     </SidebarProvider>
