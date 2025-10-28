@@ -1,10 +1,10 @@
 import type { Request, Response } from "express";
 import mongoose from "mongoose";
-import Connection from "../../db/models/connection";
-import User from "../../db/models/user";
-import AppError from "../../utils/AppError";
-import handleZodError from "../../utils/zodErrorHandler";
-import { validateSendConnectionRequest } from "../validations/connection-validation";
+import Connection from "../../db/models/connection.js";
+import User from "../../db/models/user.js";
+import AppError from "../../utils/AppError.js";
+import handleZodError from "../../utils/zodErrorHandler.js";
+import { validateSendConnectionRequest } from "../validations/connection-validation.js";
 
 const sendConnectionController = async (req: Request, res: Response) => {
   try {

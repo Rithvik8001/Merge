@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 import bcrypt from "bcrypt";
-import User from "../../db/models/user";
-import AppError from "../../utils/AppError";
-import { passwordChangeValidation } from "../validations/profile-validation";
-import handleZodError from "../../utils/zodErrorHandler";
+import User from "../../db/models/user.js";
+import AppError from "../../utils/AppError.js";
+import { passwordChangeValidation } from "../validations/profile-validation.js";
+import handleZodError from "../../utils/zodErrorHandler.js";
 
 const passwordChangeController = async (req: Request, res: Response) => {
   try {

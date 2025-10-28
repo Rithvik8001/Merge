@@ -1,5 +1,5 @@
 import { Router, type Router as ExpressRouter } from "express";
-import acceptedConnectionsController from "../../../controllers/accepted-connections-controller";
+import acceptedConnectionsController from "../../../controllers/accepted-connections-controller.js";
 
 const acceptedConnectionsRouter: ExpressRouter = Router();
 

@@ -1,8 +1,8 @@
 import { Router, type Router as ExpressRouter } from "express";
-import authMiddleware from "../../middlewares/auth";
-import conversationsRoute from "./conversations/conversations-route";
-import messagesRoute from "./messages/messages-route";
-import { chatRateLimiter } from "../../middlewares/rateLimiter";
+import authMiddleware from "../../middlewares/auth.js";
+import conversationsRoute from "./conversations/conversations-route.js";
+import messagesRoute from "./messages/messages-route.js";
+import { chatRateLimiter } from "../../middlewares/rateLimiter.js";
 
 const chatRouter: ExpressRouter = Router();
 

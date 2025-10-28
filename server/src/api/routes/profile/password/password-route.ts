@@ -1,5 +1,5 @@
 import { Router, type Router as ExpressRouter } from "express";
-import passwordChangeController from "../../../controllers/password-change-controller";
+import passwordChangeController from "../../../controllers/password-change-controller.js";
 
 const passwordRoute: ExpressRouter = Router();
 

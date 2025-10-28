@@ -1,5 +1,5 @@
 import { ZodError } from "zod";
-import AppError from "./AppError";
+import AppError from "./AppError.js";
 
 export interface ValidationError {
   field: string;

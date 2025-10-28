@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
-import Conversation from "../../db/models/conversation";
-import Message from "../../db/models/message";
-import AppError from "../../utils/AppError";
-import { getConversationsValidation } from "../validations/chat-validation";
-import handleZodError from "../../utils/zodErrorHandler";
+import Conversation from "../../db/models/conversation.js";
+import Message from "../../db/models/message.js";
+import AppError from "../../utils/AppError.js";
+import { getConversationsValidation } from "../validations/chat-validation.js";
+import handleZodError from "../../utils/zodErrorHandler.js";
 
 const getConversationsController = async (req: Request, res: Response) => {
   try {

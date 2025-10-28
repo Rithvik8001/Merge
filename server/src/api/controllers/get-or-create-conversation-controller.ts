@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import AppError from "../../utils/AppError";
-import { getOrCreateConversation } from "../../socket/message-service";
+import AppError from "../../utils/AppError.js";
+import { getOrCreateConversation } from "../../socket/message-service.js";
 
 const getOrCreateConversationController = async (
   req: Request,

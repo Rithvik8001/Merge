@@ -1,11 +1,11 @@
 import { Router, type Router as ExpressRouter } from "express";
-import authMiddleware from "../../middlewares/auth";
-import sendRouter from "./send/send-route";
-import receiveRouter from "./receive/receive-route";
-import receivedRequestsRouter from "./received-requests/received-requests-route";
-import acceptedConnectionsRouter from "./accepted-connections/accepted-connections-route";
-import userFeedRouter from "./user-feed/user-feed-route";
-import { connectionRateLimiter } from "../../middlewares/rateLimiter";
+import authMiddleware from "../../middlewares/auth.js";
+import sendRouter from "./send/send-route.js";
+import receiveRouter from "./receive/receive-route.js";
+import receivedRequestsRouter from "./received-requests/received-requests-route.js";
+import acceptedConnectionsRouter from "./accepted-connections/accepted-connections-route.js";
+import userFeedRouter from "./user-feed/user-feed-route.js";
+import { connectionRateLimiter } from "../../middlewares/rateLimiter.js";
 
 const connectionRouter: ExpressRouter = Router();
 

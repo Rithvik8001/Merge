@@ -1,8 +1,8 @@
 import { Router } from "express";
-import signupRouter from "./signup/signup-route";
-import loginRouter from "./login/login-route";
-import signoutRouter from "./signout/signout-route";
-import { authRateLimiter } from "../../middlewares/rateLimiter";
+import signupRouter from "./signup/signup-route.js";
+import loginRouter from "./login/login-route.js";
+import signoutRouter from "./signout/signout-route.js";
+import { authRateLimiter } from "../../middlewares/rateLimiter.js";
 
 const router: Router = Router();
 

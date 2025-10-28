@@ -1,6 +1,6 @@
 import { Router, type Router as ExpressRouter } from "express";
-import getConversationsController from "../../../controllers/get-conversations-controller";
-import getOrCreateConversationController from "../../../controllers/get-or-create-conversation-controller";
+import getConversationsController from "../../../controllers/get-conversations-controller.js";
+import getOrCreateConversationController from "../../../controllers/get-or-create-conversation-controller.js";
 
 const conversationsRoute: ExpressRouter = Router();
 

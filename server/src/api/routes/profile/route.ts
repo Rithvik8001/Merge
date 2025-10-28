@@ -1,10 +1,10 @@
 import { Router, type Router as ExpressRouter } from "express";
-import authMiddleware from "../../middlewares/auth";
-import viewRoute from "./view/view-route";
-import editRoute from "./edit/edit-route";
-import passwordRoute from "./password/password-route";
-import photoRoute from "./photo/photo-route";
-import { profileRateLimiter } from "../../middlewares/rateLimiter";
+import authMiddleware from "../../middlewares/auth.js";
+import viewRoute from "./view/view-route.js";
+import editRoute from "./edit/edit-route.js";
+import passwordRoute from "./password/password-route.js";
+import photoRoute from "./photo/photo-route.js";
+import { profileRateLimiter } from "../../middlewares/rateLimiter.js";
 
 const profileRouter: ExpressRouter = Router();
 

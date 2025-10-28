@@ -2,7 +2,7 @@ import { Server as HTTPServer } from "http";
 import { Server, Socket } from "socket.io";
 import jwt from "jsonwebtoken";
 import type { JwtPayload } from "jsonwebtoken";
-import { saveMessageToDb, getOrCreateConversation } from "./message-service";
+import { saveMessageToDb, getOrCreateConversation } from "./message-service.js";
 
 interface AuthenticatedSocket extends Socket {
   userId?: string;

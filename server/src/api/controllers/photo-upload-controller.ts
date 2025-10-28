@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { v2 as cloudinary } from "cloudinary";
-import User from "../../db/models/user";
-import AppError from "../../utils/AppError";
+import User from "../../db/models/user.js";
+import AppError from "../../utils/AppError.js";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,

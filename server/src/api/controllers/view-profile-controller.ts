@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
-import User from "../../db/models/user";
-import AppError from "../../utils/AppError";
-import { viewProfileValidation } from "../validations/profile-validation";
-import handleZodError from "../../utils/zodErrorHandler";
+import User from "../../db/models/user.js";
+import AppError from "../../utils/AppError.js";
+import { viewProfileValidation } from "../validations/profile-validation.js";
+import handleZodError from "../../utils/zodErrorHandler.js";
 
 const viewProfileController = async (req: Request, res: Response) => {
   try {

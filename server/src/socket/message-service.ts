@@ -1,5 +1,5 @@
-import Message from "../db/models/message";
-import Conversation from "../db/models/conversation";
+import Message from "../db/models/message.js";
+import Conversation from "../db/models/conversation.js";
 
 export const saveMessageToDb = async (
   conversationId: string,

@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
-import User from "../../db/models/user";
-import Connection from "../../db/models/connection";
-import AppError from "../../utils/AppError";
-import { validateUserFeed } from "../validations/connection-validation";
-import handleZodError from "../../utils/zodErrorHandler";
+import User from "../../db/models/user.js";
+import Connection from "../../db/models/connection.js";
+import AppError from "../../utils/AppError.js";
+import { validateUserFeed } from "../validations/connection-validation.js";
+import handleZodError from "../../utils/zodErrorHandler.js";
 
 const userFeedController = async (req: Request, res: Response) => {
   try {

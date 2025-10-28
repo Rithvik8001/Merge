@@ -1,5 +1,5 @@
 import { Router, type Router as ExpressRouter } from "express";
-import receivedRequestsController from "../../../controllers/received-requests-controller";
+import receivedRequestsController from "../../../controllers/received-requests-controller.js";
 
 const receivedRequestsRouter: ExpressRouter = Router();
 
