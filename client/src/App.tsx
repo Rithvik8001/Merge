@@ -6,6 +6,7 @@ import { Signup } from "./pages/Signup";
 import { Dashboard } from "./pages/Dashboard";
 import { Requests } from "./pages/Requests";
 import { Connections } from "./pages/Connections";
+import { Messages } from "./pages/Messages";
 import { Profile } from "./pages/Profile";
 import { Settings } from "./pages/Settings";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -47,6 +48,22 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <Connections />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/messages"
+            element={
+              <ProtectedRoute>
+                <Messages />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/messages/:userName"
+            element={
+              <ProtectedRoute>
+                <Messages />
               </ProtectedRoute>
             }
           />

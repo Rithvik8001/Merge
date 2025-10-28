@@ -1,11 +1,8 @@
-import { ReactNode, useState, useEffect } from "react";
-import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import { ReactNode, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
-import { useChat } from "@/hooks/useChat";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ChatSidebar } from "@/components/ChatSidebar";
-import { ChatWindow } from "@/components/ChatWindow";
 import {
   Sidebar,
   SidebarContent,
@@ -21,6 +18,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import {
   Compass,
   Users,
@@ -43,63 +48,8 @@ interface NavItem {
 export const DashboardLayout = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchParams] = useSearchParams();
   const { user, logout } = useAuthStore();
-  const {
-    conversations,
-    messages,
-    selectedConversationId,
-    selectedUser,
-    isConnected,
-    isLoadingConversations,
-    isLoadingMessages,
-    fetchConversations,
-    selectConversation,
-    sendMessage,
-  } = useChat();
-
-  // Chat UI state
-  const [showChat, setShowChat] = useState(false);
-
-  // Auto-open chat if view=messages in query params
-  useEffect(() => {
-    const view = searchParams.get("view");
-    if (view === "messages") {
-      setShowChat(true);
-      // Remove the query param after opening chat
-      navigate(location.pathname, { replace: true });
-    }
-  }, [searchParams, navigate, location.pathname]);
-
-  // Fetch conversations when chat is opened
-  useEffect(() => {
-    if (showChat && conversations.length === 0) {
-      fetchConversations();
-    }
-  }, [showChat, conversations.length, fetchConversations]);
-
-  const handleSelectConversation = (conversationId: string) => {
-    const conversation = conversations.find(c => c.id === conversationId);
-    if (conversation) {
-      selectConversation(conversationId, {
-        id: conversation.userId,
-        userName: conversation.userName,
-        email: conversation.email,
-        photoUrl: conversation.photoUrl,
-      });
-    }
-  };
-
-  const handleSendMessage = (content: string) => {
-    if (selectedUser) {
-      sendMessage(content, selectedUser.id);
-    }
-  };
-
-  const handleBackFromChat = () => {
-    // Clear selection by passing null (useChat hook will handle state reset)
-    // For mobile view, we just hide the chat window
-  };
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   const navItems: NavItem[] = [
     {
@@ -119,7 +69,7 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
     },
     {
       title: "Messages",
-      url: "#messages",
+      url: "/messages",
       icon: MessageCircle,
     },
   ];
@@ -127,6 +77,11 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
   const handleLogout = async () => {
     await logout();
     navigate("/login");
+  };
+
+  const handleNavigation = (url: string) => {
+    navigate(url);
+    setMobileDrawerOpen(false);
   };
 
   return (
@@ -145,16 +100,10 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
                 return (
                   <button
                     key={item.url}
-                    onClick={() => {
-                      if (item.title === "Messages") {
-                        setShowChat(!showChat);
-                      } else {
-                        navigate(item.url);
-                      }
-                    }}
+                    onClick={() => navigate(item.url)}
                     className={cn(
                       "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 group relative",
-                      (isActive || (item.title === "Messages" && showChat))
+                      isActive
                         ? "bg-primary/10 text-primary"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
                     )}
@@ -255,13 +204,82 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
             <div className="flex items-center gap-4 flex-1 min-w-0">
               {/* Mobile Menu Icon */}
               <div className="md:hidden">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-10 w-10 rounded-lg p-0 hover:bg-muted"
-                >
-                  <Menu className="w-5 h-5" />
-                </Button>
+                <Sheet open={mobileDrawerOpen} onOpenChange={setMobileDrawerOpen}>
+                  <SheetTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-10 w-10 rounded-lg p-0 hover:bg-muted"
+                    >
+                      <Menu className="w-5 h-5" />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-64 p-0">
+                    <SheetHeader className="px-4 py-4 border-b border-border">
+                      <SheetTitle>Navigation</SheetTitle>
+                      <SheetDescription>Navigate to different sections of the app</SheetDescription>
+                    </SheetHeader>
+                    <nav className="flex flex-col gap-2 px-4 py-4">
+                      {navItems.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = location.pathname === item.url;
+                        return (
+                          <button
+                            key={item.url}
+                            onClick={() => handleNavigation(item.url)}
+                            className={cn(
+                              "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 group relative",
+                              isActive
+                                ? "bg-primary/10 text-primary"
+                                : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                            )}
+                          >
+                            <Icon
+                              className={cn(
+                                "w-5 h-5 shrink-0 transition-colors",
+                                isActive ? "text-primary" : "",
+                              )}
+                            />
+                            <span className="flex-1 text-left">{item.title}</span>
+                          </button>
+                        );
+                      })}
+                    </nav>
+                    <div className="border-t border-border px-4 py-4">
+                      <button
+                        onClick={() => handleNavigation("/settings")}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200"
+                      >
+                        <Settings className="w-5 h-5 shrink-0" />
+                        <span className="flex-1 text-left">Settings</span>
+                      </button>
+                    </div>
+                    <div className="border-t border-border px-4 py-4">
+                      <button
+                        onClick={() => handleNavigation("/profile")}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 mb-2"
+                      >
+                        <span className="text-base">👤</span>
+                        <span className="flex-1 text-left">My Profile</span>
+                      </button>
+                      <div className="px-2 py-2">
+                        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 mb-2">
+                          Theme
+                        </p>
+                        <div className="flex justify-center">
+                          <ModeToggle />
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-destructive hover:text-destructive hover:bg-destructive/10 transition-all duration-200 mt-2"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span className="flex-1 text-left">Logout</span>
+                      </button>
+                    </div>
+                  </SheetContent>
+                </Sheet>
               </div>
 
               <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
@@ -328,6 +346,13 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
                     <Users className="w-4 h-4" />
                     <span>Connections</span>
                   </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => navigate("/messages")}
+                    className="cursor-pointer gap-2"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Messages</span>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => navigate("/profile")}
@@ -368,48 +393,7 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
           </div>
 
           {/* Content */}
-          {showChat ? (
-            <div className="flex-1 flex bg-background">
-              {/* Desktop - Show sidebar on left */}
-              <div className="hidden md:flex flex-1">
-                <ChatSidebar
-                  conversations={conversations}
-                  selectedConversationId={selectedConversationId}
-                  onSelectConversation={handleSelectConversation}
-                  isLoading={isLoadingConversations}
-                />
-                <ChatWindow
-                  selectedUser={selectedUser}
-                  messages={messages}
-                  isLoading={isLoadingMessages}
-                  onSendMessage={handleSendMessage}
-                  onBack={handleBackFromChat}
-                />
-              </div>
-
-              {/* Mobile - Show either sidebar or chat */}
-              <div className="flex-1 md:hidden">
-                {selectedConversationId ? (
-                  <ChatWindow
-                    selectedUser={selectedUser}
-                    messages={messages}
-                    isLoading={isLoadingMessages}
-                    onSendMessage={handleSendMessage}
-                    onBack={handleBackFromChat}
-                  />
-                ) : (
-                  <ChatSidebar
-                    conversations={conversations}
-                    selectedConversationId={selectedConversationId}
-                    onSelectConversation={handleSelectConversation}
-                    isLoading={isLoadingConversations}
-                  />
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="flex-1 overflow-auto">{children}</div>
-          )}
+          <div className="flex-1 overflow-auto">{children}</div>
         </main>
       </div>
     </SidebarProvider>

@@ -239,6 +239,13 @@ export const useChat = (): UseChatReturn => {
     }
   }, []);
 
+  // Clear selection (for mobile back button)
+  const clearSelection = useCallback(() => {
+    setSelectedConversationId(null);
+    setSelectedUser(null);
+    setMessages([]);
+  }, []);
+
   return {
     conversations,
     messages,
@@ -252,6 +259,7 @@ export const useChat = (): UseChatReturn => {
     selectConversation,
     sendMessage,
     markMessagesAsRead,
+    clearSelection,
   };
 };
 

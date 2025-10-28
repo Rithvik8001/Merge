@@ -36,7 +36,7 @@ export const ChatSidebar = ({
   );
 
   return (
-    <div className="w-80 bg-card border-r border-border flex flex-col h-full">
+    <div className="w-full sm:w-80 bg-card border-r border-border flex flex-col h-full">
       {/* Header */}
       <div className="p-4 border-b border-border">
         <h2 className="text-lg font-semibold text-foreground mb-4">Messages</h2>
