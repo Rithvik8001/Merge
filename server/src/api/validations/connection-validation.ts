@@ -81,3 +81,48 @@ export const validateAcceptedConnections = async (data: unknown) => {
 export const validateUserFeed = async (data: unknown) => {
   return await userFeedSchema.safeParseAsync(data);
 };
+
+export const searchUsersSchema = z.object({
+  search: z
+    .string()
+    .optional()
+    .default("")
+    .describe("Search by username or skills"),
+  skills: z
+    .string()
+    .optional()
+    .default("")
+    .describe("Filter by skills (comma-separated)"),
+  gender: z
+    .enum(["male", "female", "other", ""])
+    .optional()
+    .default("")
+    .describe("Filter by gender"),
+  sortBy: z
+    .enum(["newest", "alphabetical"])
+    .optional()
+    .default("newest")
+    .describe("Sort order"),
+  page: z
+    .string()
+    .optional()
+    .default("1")
+    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+      message: "Page must be a positive number",
+    })
+    .transform((val) => Number(val)),
+  limit: z
+    .string()
+    .optional()
+    .default("20")
+    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+      message: "Limit must be a positive number",
+    })
+    .transform((val) => Number(val)),
+});
+
+export type SearchUsersData = z.infer<typeof searchUsersSchema>;
+
+export const validateSearchUsers = async (data: unknown) => {
+  return await searchUsersSchema.safeParseAsync(data);
+};
