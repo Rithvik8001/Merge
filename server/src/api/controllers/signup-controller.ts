@@ -21,7 +21,7 @@ const signupController = async (req: Request, res: Response) => {
         "This email is already registered. Please use a different email or try logging in.",
         409,
         true,
-        "EMAIL_ALREADY_EXISTS",
+        "EMAIL_ALREADY_EXISTS"
       );
     }
 

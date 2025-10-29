@@ -5,6 +5,10 @@ export { useAuthState } from "./useAuthState";
 export { useIsMobile } from "./use-mobile";
 export { useFeed } from "./useFeed";
 export { useSearch } from "./useSearch";
-export { useConnection, type ConnectionRequest, type AcceptedConnection } from "./useConnection";
+export {
+  useConnection,
+  type ConnectionRequest,
+  type AcceptedConnection,
+} from "./useConnection";
 export { useProfile } from "./useProfile";
 export { useProfileModal } from "./useProfileModal";

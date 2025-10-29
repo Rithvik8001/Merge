@@ -28,7 +28,7 @@ interface UseSignupReturn {
 }
 
 const validatePassword = (
-  password: string,
+  password: string
 ): { valid: boolean; message: string } => {
   const hasUpperCase = /[A-Z]/.test(password);
   const hasLowerCase = /[a-z]/.test(password);
@@ -68,7 +68,7 @@ const validatePassword = (
 };
 
 const validateUsername = (
-  userName: string,
+  userName: string
 ): { valid: boolean; message: string } => {
   const isValidLength = userName.length >= 6 && userName.length <= 15;
   const isValidFormat = /^[a-zA-Z0-9_]+$/.test(userName);
@@ -129,18 +129,18 @@ export const useSignup = (): UseSignupReturn => {
         throw new Error("Please enter a valid email address");
       }
 
-      await apiClient.post<SignupResponse>(
+      const response = await apiClient.post<SignupResponse>(
         "/api/v1/auth/signup",
         {
           userName: data.userName,
           email: data.email,
           password: data.password,
-        },
+        }
       );
 
       // Account created successfully - redirect to login
       toast.success(
-        "Account created successfully! Please login with your credentials.",
+        "Account created successfully! Please login with your credentials."
       );
       navigate("/login");
     } catch (err) {
@@ -148,8 +148,8 @@ export const useSignup = (): UseSignupReturn => {
         axios.isAxiosError(err) && err.response?.data?.message
           ? err.response.data.message
           : err instanceof Error
-            ? err.message
-            : "Signup failed. Please try again.";
+          ? err.message
+          : "Signup failed. Please try again.";
 
       setError(errorMessage);
       toast.error(errorMessage);
