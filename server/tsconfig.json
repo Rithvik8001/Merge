@@ -18,6 +18,8 @@
     "esm": true,
     "experimentalEsm": true,
     "transpileOnly": true,
+    "ignoreDeprecations": ["5746"],
+    "extensions": [".ts", ".js"],
     "compilerOptions": {
       "module": "ES2020"
     }
