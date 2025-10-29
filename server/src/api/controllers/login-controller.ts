@@ -41,7 +41,7 @@ const loginController = async (req: Request, res: Response) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // Only send over HTTPS in production
-      sameSite: "strict", // CSRF protection
+      sameSite: "none", // Allow cross-origin cookies (required for production with separate frontend)
       expires: new Date(Date.now() + 8 * 3600000),
     });
 
