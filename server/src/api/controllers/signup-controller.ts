@@ -5,7 +5,7 @@ import signupValidation from "../validations/signup-validation.js";
 import User from "../../db/models/user.js";
 import AppError from "../../utils/AppError.js";
 import handleZodError from "../../utils/zodErrorHandler.js";
-import { sendOTPEmail } from "../../services/emailService.js";
+import { sendOTPEmailAsync } from "../../services/emailService.js";
 
 const generateOTP = (): string => {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -49,7 +49,7 @@ const signupController = async (req: Request, res: Response) => {
       ...optionalData,
     });
 
-    // Log OTP in development and send email
+    // Log OTP in development and send email asynchronously
     if (process.env.NODE_ENV === "development") {
       console.log("📧 Email Verification OTP:");
       console.log("Email:", email);
@@ -57,13 +57,8 @@ const signupController = async (req: Request, res: Response) => {
       console.log("Expires at:", otpExpiry);
     }
 
-    // Always send OTP email (works in both dev and production)
-    try {
-      await sendOTPEmail(email, plainOTP);
-    } catch (err) {
-      console.error("Failed to send OTP email:", err);
-      // Don't fail signup, but log the error
-    }
+    // Send OTP email in background (non-blocking)
+    sendOTPEmailAsync(email, plainOTP);
 
     return res.status(201).json({
       success: true,
