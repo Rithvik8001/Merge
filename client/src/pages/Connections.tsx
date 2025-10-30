@@ -11,16 +11,19 @@ import {
   useProfileModal,
   type AcceptedConnection,
 } from "@/hooks";
+import { useChat } from "@/hooks/useChat";
 import { Loader2, MessageSquare, MessageCircle } from "lucide-react";
 
 export const Connections = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
   const { getAcceptedConnections } = useConnection();
+  const { getOrCreateConversation } = useChat();
   const { selectedUserId, isOpen, openProfile, closeProfile } =
     useProfileModal();
   const [connections, setConnections] = useState<AcceptedConnection[]>([]);
   const [pageLoading, setPageLoading] = useState(true);
+  const [messagingUserId, setMessagingUserId] = useState<string | null>(null);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -46,9 +49,17 @@ export const Connections = () => {
     fetchConnections();
   }, []);
 
-  const handleMessageClick = (connection: AcceptedConnection) => {
-    // Navigate to messages page with the userName
-    navigate(`/messages/${connection.connectedUser.userName}`);
+  const handleMessageClick = async (connection: AcceptedConnection) => {
+    // Create or get conversation first
+    setMessagingUserId(connection.connectedUser.id);
+    try {
+      await getOrCreateConversation(connection.connectedUser.id);
+      // After conversation is created/retrieved, navigate
+      navigate(`/messages/${connection.connectedUser.userName}`);
+    } catch (err) {
+      // Error is already handled in the hook
+      setMessagingUserId(null);
+    }
   };
 
   if (!isAuthenticated) {
@@ -192,9 +203,19 @@ export const Connections = () => {
                         size="sm"
                         className="gap-2 w-full sm:w-auto"
                         onClick={() => handleMessageClick(connection)}
+                        disabled={messagingUserId === connection.connectedUser.id}
                       >
-                        <MessageSquare size={16} />
-                        Message
+                        {messagingUserId === connection.connectedUser.id ? (
+                          <>
+                            <Loader2 size={16} className="animate-spin" />
+                            Opening...
+                          </>
+                        ) : (
+                          <>
+                            <MessageSquare size={16} />
+                            Message
+                          </>
+                        )}
                       </Button>
                     </div>
                   </div>
