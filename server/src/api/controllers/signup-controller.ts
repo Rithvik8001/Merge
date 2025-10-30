@@ -55,6 +55,9 @@ const signupController = async (req: Request, res: Response) => {
       console.log("Email:", email);
       console.log("OTP:", plainOTP);
       console.log("Expires at:", otpExpiry);
+    } else {
+      // In production, also log OTP temporarily for debugging email issues
+      console.log("📧 Production OTP for", email, ":", plainOTP);
     }
 
     // Send OTP email in background (non-blocking)

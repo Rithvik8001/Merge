@@ -1,31 +1,15 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
 // Verify environment variables are loaded
-if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-  console.error("❌ EMAIL_USER or EMAIL_PASSWORD not set in environment variables");
-  console.error("EMAIL_USER:", process.env.EMAIL_USER ? "✓ Set" : "✗ Missing");
-  console.error("EMAIL_PASSWORD:", process.env.EMAIL_PASSWORD ? "✓ Set" : "✗ Missing");
+if (!process.env.RESEND_API_KEY) {
+  console.error("❌ RESEND_API_KEY not set in environment variables");
 }
 
-// Create transporter
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
+// Initialize Resend client
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Verify transporter connection asynchronously with timeout (non-blocking)
-setTimeout(() => {
-  transporter.verify((error, success) => {
-    if (error) {
-      console.error("❌ Email transporter verification failed:", error);
-    } else if (success) {
-      console.log("✅ Email transporter is ready to send messages");
-    }
-  });
-}, 100);
+// Verify Resend connection on startup
+console.log("✅ Resend email service initialized");
 
 interface EmailPayload {
   to: string;
@@ -35,8 +19,8 @@ interface EmailPayload {
 
 export const sendEmail = async (payload: EmailPayload): Promise<void> => {
   try {
-    await transporter.sendMail({
-      from: `"Merge App" <${process.env.EMAIL_USER}>`,
+    await resend.emails.send({
+      from: "Merge <noreply@merge.cafe>",
       to: payload.to,
       subject: payload.subject,
       html: payload.html,
@@ -54,22 +38,25 @@ export const sendEmail = async (payload: EmailPayload): Promise<void> => {
 // Non-blocking version that sends in the background
 export const sendEmailAsync = (payload: EmailPayload): void => {
   console.log("📧 Attempting to send email to:", payload.to);
+
   // Fire and forget - don't await or throw
-  transporter.sendMail({
-    from: `"Merge App" <${process.env.EMAIL_USER}>`,
-    to: payload.to,
-    subject: payload.subject,
-    html: payload.html,
-  }).then(() => {
-    console.log("✅ Email successfully sent to:", payload.to);
-  }).catch((error) => {
-    console.error("❌ Error sending email to", payload.to);
-    console.error("Error details:", error.message);
-    if (error.response) {
-      console.error("SMTP Response:", error.response);
-    }
-    // Don't throw - email failure shouldn't block the main operation
-  });
+  resend.emails
+    .send({
+      from: "Merge <noreply@merge.cafe>",
+      to: payload.to,
+      subject: payload.subject,
+      html: payload.html,
+    })
+    .then((result) => {
+      console.log("✅ Email successfully sent to:", payload.to);
+      if (result.error) {
+        console.error("Resend error:", result.error);
+      }
+    })
+    .catch((error) => {
+      console.error("❌ Error sending email to", payload.to);
+      console.error("Error details:", error.message);
+    });
 };
 
 export const sendOTPEmail = async (
