@@ -1,5 +1,12 @@
 import nodemailer from "nodemailer";
 
+// Verify environment variables are loaded
+if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+  console.error("❌ EMAIL_USER or EMAIL_PASSWORD not set in environment variables");
+  console.error("EMAIL_USER:", process.env.EMAIL_USER ? "✓ Set" : "✗ Missing");
+  console.error("EMAIL_PASSWORD:", process.env.EMAIL_PASSWORD ? "✓ Set" : "✗ Missing");
+}
+
 // Create transporter
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -7,6 +14,15 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASSWORD,
   },
+});
+
+// Verify transporter connection
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("❌ Email transporter verification failed:", error);
+  } else if (success) {
+    console.log("✅ Email transporter is ready to send messages");
+  }
 });
 
 interface EmailPayload {
@@ -35,6 +51,7 @@ export const sendEmail = async (payload: EmailPayload): Promise<void> => {
 
 // Non-blocking version that sends in the background
 export const sendEmailAsync = (payload: EmailPayload): void => {
+  console.log("📧 Attempting to send email to:", payload.to);
   // Fire and forget - don't await or throw
   transporter.sendMail({
     from: `"Merge App" <${process.env.EMAIL_USER}>`,
@@ -42,11 +59,13 @@ export const sendEmailAsync = (payload: EmailPayload): void => {
     subject: payload.subject,
     html: payload.html,
   }).then(() => {
-    if (process.env.NODE_ENV === "development") {
-      console.log("📧 Email sent to:", payload.to);
-    }
+    console.log("✅ Email successfully sent to:", payload.to);
   }).catch((error) => {
-    console.error("❌ Error sending email to", payload.to, ":", error);
+    console.error("❌ Error sending email to", payload.to);
+    console.error("Error details:", error.message);
+    if (error.response) {
+      console.error("SMTP Response:", error.response);
+    }
     // Don't throw - email failure shouldn't block the main operation
   });
 };
