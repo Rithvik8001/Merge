@@ -94,10 +94,10 @@ export const Messages = () => {
               )
               .then((response) => {
                 if (
-                  response.data?.data?.users &&
-                  response.data.data.users.length > 0
+                  Array.isArray(response.data?.data) &&
+                  response.data.data.length > 0
                 ) {
-                  const user = response.data.data.users.find(
+                  const user = response.data.data.find(
                     (u: UserSearchResult) =>
                       u.userName.toLowerCase() === lowerUserName
                   );
