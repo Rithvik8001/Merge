@@ -96,7 +96,7 @@ export const useProfile = (): UseProfileReturn => {
       setError(null);
 
       const response = await apiClient.get<ViewProfileResponse>(
-        `/api/v1/profile/view/${userId}`,
+        `/api/v1/profile/view/${userId}`
       );
 
       return response.data.data;
@@ -114,7 +114,7 @@ export const useProfile = (): UseProfileReturn => {
   };
 
   const editProfile = async (
-    data: EditProfilePayload,
+    data: EditProfilePayload
   ): Promise<UserProfile> => {
     try {
       setIsLoading(true);
@@ -122,7 +122,7 @@ export const useProfile = (): UseProfileReturn => {
 
       const response = await apiClient.post<EditProfileResponse>(
         "/api/v1/profile/edit",
-        data,
+        data
       );
 
       toast.success("Profile updated successfully!");
@@ -147,7 +147,7 @@ export const useProfile = (): UseProfileReturn => {
 
       await apiClient.post<ChangePasswordResponse>(
         "/api/v1/profile/password",
-        data,
+        data
       );
 
       toast.success("Password changed successfully!");

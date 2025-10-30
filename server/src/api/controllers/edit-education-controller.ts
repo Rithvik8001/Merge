@@ -28,7 +28,12 @@ const editEducationController = async (req: Request, res: Response) => {
     );
 
     if (educationIndex === -1) {
-      throw new AppError("Education not found", 404, true, "EDUCATION_NOT_FOUND");
+      throw new AppError(
+        "Education not found",
+        404,
+        true,
+        "EDUCATION_NOT_FOUND"
+      );
     }
 
     const eduData = result.data;

@@ -48,9 +48,7 @@ export const useEducation = (): UseEducationReturn => {
           degree: data.degree,
           fieldOfStudy: data.fieldOfStudy,
           startDate: new Date(data.startDate).toISOString(),
-          endDate: data.endDate
-            ? new Date(data.endDate).toISOString()
-            : null,
+          endDate: data.endDate ? new Date(data.endDate).toISOString() : null,
           isCurrentlyStudying: data.isCurrentlyStudying,
           description: data.description,
         }
@@ -86,9 +84,7 @@ export const useEducation = (): UseEducationReturn => {
           degree: data.degree,
           fieldOfStudy: data.fieldOfStudy,
           startDate: new Date(data.startDate).toISOString(),
-          endDate: data.endDate
-            ? new Date(data.endDate).toISOString()
-            : null,
+          endDate: data.endDate ? new Date(data.endDate).toISOString() : null,
           isCurrentlyStudying: data.isCurrentlyStudying,
           description: data.description,
         }

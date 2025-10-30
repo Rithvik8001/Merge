@@ -81,13 +81,13 @@ interface RespondToRequestResponse {
 interface UseConnectionReturn {
   sendConnectionRequest: (
     userId: string,
-    status: "interested" | "ignored",
+    status: "interested" | "ignored"
   ) => Promise<void>;
   getReceivedRequests: () => Promise<ConnectionRequest[]>;
   getAcceptedConnections: () => Promise<AcceptedConnection[]>;
   respondToRequest: (
     requestId: string,
-    status: "accepted" | "rejected",
+    status: "accepted" | "rejected"
   ) => Promise<void>;
   isLoading: boolean;
   error: string | null;
@@ -99,18 +99,18 @@ export const useConnection = (): UseConnectionReturn => {
 
   const sendConnectionRequest = async (
     userId: string,
-    status: "interested" | "ignored",
+    status: "interested" | "ignored"
   ) => {
     try {
       setIsLoading(true);
       setError(null);
 
       await apiClient.post<SendConnectionResponse>(
-        `/api/v1/connection/request/send/${status}/${userId}`,
+        `/api/v1/connection/request/send/${status}/${userId}`
       );
 
       toast.success(
-        status === "interested" ? "Connection request sent!" : "User ignored",
+        status === "interested" ? "Connection request sent!" : "User ignored"
       );
     } catch (err) {
       const errorMessage =
@@ -131,7 +131,7 @@ export const useConnection = (): UseConnectionReturn => {
       setError(null);
 
       const response = await apiClient.get<RequestResponse>(
-        "/api/v1/connection/user/requests/received",
+        "/api/v1/connection/user/requests/received"
       );
 
       return response.data.data;
@@ -154,7 +154,7 @@ export const useConnection = (): UseConnectionReturn => {
       setError(null);
 
       const response = await apiClient.get<ConnectionsResponse>(
-        "/api/v1/connection/user/connections",
+        "/api/v1/connection/user/connections"
       );
 
       return response.data.data;
@@ -173,18 +173,18 @@ export const useConnection = (): UseConnectionReturn => {
 
   const respondToRequest = async (
     requestId: string,
-    status: "accepted" | "rejected",
+    status: "accepted" | "rejected"
   ) => {
     try {
       setIsLoading(true);
       setError(null);
 
       await apiClient.post<RespondToRequestResponse>(
-        `/api/v1/connection/request/recieve/${status}/${requestId}`,
+        `/api/v1/connection/request/recieve/${status}/${requestId}`
       );
 
       toast.success(
-        status === "accepted" ? "Connection accepted!" : "Connection rejected",
+        status === "accepted" ? "Connection accepted!" : "Connection rejected"
       );
     } catch (err) {
       const errorMessage =

@@ -112,8 +112,8 @@ export const useChat = (): UseChatReturn => {
                 lastMessageTime: messageData.timestamp,
                 unreadCount: conv.unreadCount + 1,
               }
-            : conv,
-        ),
+            : conv
+        )
       );
     });
 
@@ -182,7 +182,7 @@ export const useChat = (): UseChatReturn => {
           `${API_URL}/api/v1/chat/messages/${conversationId}?page=${page}`,
           {
             withCredentials: true,
-          },
+          }
         );
 
         if (response.data?.data) {
@@ -204,7 +204,7 @@ export const useChat = (): UseChatReturn => {
         setIsLoadingMessages(false);
       }
     },
-    [],
+    []
   );
 
   // Select a conversation
@@ -217,7 +217,7 @@ export const useChat = (): UseChatReturn => {
       // Mark messages as read
       markMessagesAsRead(conversationId);
     },
-    [fetchMessages],
+    [fetchMessages]
   );
 
   // Send message via Socket.io
@@ -239,7 +239,7 @@ export const useChat = (): UseChatReturn => {
         recipientId,
       });
     },
-    [selectedConversationId],
+    [selectedConversationId]
   );
 
   // Mark messages as read
@@ -250,7 +250,7 @@ export const useChat = (): UseChatReturn => {
         {},
         {
           withCredentials: true,
-        },
+        }
       );
 
       // Update local messages state
@@ -258,14 +258,14 @@ export const useChat = (): UseChatReturn => {
         prev.map((msg) => ({
           ...msg,
           isRead: true,
-        })),
+        }))
       );
 
       // Update conversations unread count
       setConversations((prev) =>
         prev.map((conv) =>
-          conv.id === conversationId ? { ...conv, unreadCount: 0 } : conv,
-        ),
+          conv.id === conversationId ? { ...conv, unreadCount: 0 } : conv
+        )
       );
     } catch (error) {
       console.error("Error marking messages as read:", error);
@@ -282,26 +282,23 @@ export const useChat = (): UseChatReturn => {
   }, []);
 
   // Emit typing event with debounce
-  const emitTyping = useCallback(
-    (recipientId: string) => {
-      if (!socketRef.current || !socketRef.current.connected) return;
+  const emitTyping = useCallback((recipientId: string) => {
+    if (!socketRef.current || !socketRef.current.connected) return;
 
-      socketRef.current.emit("typing", { recipientId });
+    socketRef.current.emit("typing", { recipientId });
 
-      // Clear previous timeout
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
+    // Clear previous timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Set new timeout to emit stop_typing after 1 second of inactivity
+    typingTimeoutRef.current = setTimeout(() => {
+      if (socketRef.current && socketRef.current.connected) {
+        socketRef.current.emit("stop_typing", { recipientId });
       }
-
-      // Set new timeout to emit stop_typing after 1 second of inactivity
-      typingTimeoutRef.current = setTimeout(() => {
-        if (socketRef.current && socketRef.current.connected) {
-          socketRef.current.emit("stop_typing", { recipientId });
-        }
-      }, 1000);
-    },
-    [],
-  );
+    }, 1000);
+  }, []);
 
   return {
     conversations,

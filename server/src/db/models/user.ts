@@ -112,6 +112,15 @@ const userSchema = new Schema(
         },
       },
     ],
+    resetPasswordToken: {
+      type: String,
+      default: null,
+      sparse: true,
+    },
+    resetPasswordTokenExpiry: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );

@@ -25,7 +25,10 @@ interface AddWorkExperienceResponse {
 
 interface UseWorkExperienceReturn {
   addWorkExperience: (data: WorkExperience) => Promise<WorkExperience>;
-  editWorkExperience: (experienceId: string, data: WorkExperience) => Promise<WorkExperience>;
+  editWorkExperience: (
+    experienceId: string,
+    data: WorkExperience
+  ) => Promise<WorkExperience>;
   deleteWorkExperience: (experienceId: string) => Promise<void>;
   isLoading: boolean;
   error: string | null;
@@ -48,9 +51,7 @@ export const useWorkExperience = (): UseWorkExperienceReturn => {
           company: data.company,
           position: data.position,
           startDate: new Date(data.startDate).toISOString(),
-          endDate: data.endDate
-            ? new Date(data.endDate).toISOString()
-            : null,
+          endDate: data.endDate ? new Date(data.endDate).toISOString() : null,
           isCurrentlyWorking: data.isCurrentlyWorking,
           description: data.description,
         }
@@ -85,9 +86,7 @@ export const useWorkExperience = (): UseWorkExperienceReturn => {
           company: data.company,
           position: data.position,
           startDate: new Date(data.startDate).toISOString(),
-          endDate: data.endDate
-            ? new Date(data.endDate).toISOString()
-            : null,
+          endDate: data.endDate ? new Date(data.endDate).toISOString() : null,
           isCurrentlyWorking: data.isCurrentlyWorking,
           description: data.description,
         }

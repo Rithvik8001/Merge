@@ -18,7 +18,12 @@ const deleteEducationController = async (req: Request, res: Response) => {
     );
 
     if (educationIndex === -1) {
-      throw new AppError("Education not found", 404, true, "EDUCATION_NOT_FOUND");
+      throw new AppError(
+        "Education not found",
+        404,
+        true,
+        "EDUCATION_NOT_FOUND"
+      );
     }
 
     user.education.splice(educationIndex, 1);

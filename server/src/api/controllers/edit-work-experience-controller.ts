@@ -28,7 +28,12 @@ const editWorkExperienceController = async (req: Request, res: Response) => {
     );
 
     if (experienceIndex === -1) {
-      throw new AppError("Work experience not found", 404, true, "EXPERIENCE_NOT_FOUND");
+      throw new AppError(
+        "Work experience not found",
+        404,
+        true,
+        "EXPERIENCE_NOT_FOUND"
+      );
     }
 
     const workData = result.data;

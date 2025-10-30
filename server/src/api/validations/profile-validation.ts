@@ -86,7 +86,7 @@ export const validatePasswordChange = z
         {
           message:
             "Password must include uppercase, lowercase, number, and special character",
-        },
+        }
       ),
     confirmPassword: z.string().min(1, "Password confirmation is required"),
   })

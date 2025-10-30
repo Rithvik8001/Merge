@@ -50,7 +50,7 @@ export const useLogin = (): UseLoginReturn => {
         {
           email: credentials.email,
           password: credentials.password,
-        },
+        }
       );
 
       // Extract user data from response
@@ -77,8 +77,8 @@ export const useLogin = (): UseLoginReturn => {
         axios.isAxiosError(err) && err.response?.data?.message
           ? err.response.data.message
           : err instanceof Error
-            ? err.message
-            : "Login failed. Please try again.";
+          ? err.message
+          : "Login failed. Please try again.";
 
       setError(errorMessage);
       setStoreError(errorMessage);
