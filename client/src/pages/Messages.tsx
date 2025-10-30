@@ -23,7 +23,6 @@ export const Messages = () => {
     fetchConversations,
     fetchMessages,
     selectConversation,
-    getOrCreateConversation,
     sendMessage,
     clearSelection,
     emitTyping,
