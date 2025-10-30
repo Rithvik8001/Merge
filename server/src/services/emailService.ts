@@ -16,14 +16,16 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Verify transporter connection
-transporter.verify((error, success) => {
-  if (error) {
-    console.error("❌ Email transporter verification failed:", error);
-  } else if (success) {
-    console.log("✅ Email transporter is ready to send messages");
-  }
-});
+// Verify transporter connection asynchronously with timeout (non-blocking)
+setTimeout(() => {
+  transporter.verify((error, success) => {
+    if (error) {
+      console.error("❌ Email transporter verification failed:", error);
+    } else if (success) {
+      console.log("✅ Email transporter is ready to send messages");
+    }
+  });
+}, 100);
 
 interface EmailPayload {
   to: string;
