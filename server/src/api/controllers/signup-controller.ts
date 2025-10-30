@@ -49,20 +49,20 @@ const signupController = async (req: Request, res: Response) => {
       ...optionalData,
     });
 
-    // Log OTP in development, send email in production
+    // Log OTP in development and send email
     if (process.env.NODE_ENV === "development") {
       console.log("📧 Email Verification OTP:");
       console.log("Email:", email);
       console.log("OTP:", plainOTP);
       console.log("Expires at:", otpExpiry);
-    } else {
-      // Send OTP email
-      try {
-        await sendOTPEmail(email, plainOTP);
-      } catch (err) {
-        console.error("Failed to send OTP email:", err);
-        // Don't fail signup, but log the error
-      }
+    }
+
+    // Always send OTP email (works in both dev and production)
+    try {
+      await sendOTPEmail(email, plainOTP);
+    } catch (err) {
+      console.error("Failed to send OTP email:", err);
+      // Don't fail signup, but log the error
     }
 
     return res.status(201).json({
