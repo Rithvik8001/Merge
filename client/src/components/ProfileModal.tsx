@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useProfile } from "@/hooks/useProfile";
-import { Loader2, Heart, X, Mail, Briefcase } from "lucide-react";
+import { Loader2, Heart, X, Mail, Briefcase, GraduationCap } from "lucide-react";
 
 interface ProfileModalProps {
   userId: string | null;
@@ -145,6 +145,127 @@ export const ProfileModal = ({
                       {skill}
                     </Badge>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Work Experience */}
+            {profile.workExperience && profile.workExperience.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Briefcase className="w-4 h-4" />
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Work Experience
+                  </h3>
+                </div>
+                <div className="space-y-3">
+                  {profile.workExperience.map(
+                    (
+                      exp: {
+                        position: string;
+                        company: string;
+                        startDate: string;
+                        endDate?: string;
+                        isCurrentlyWorking: boolean;
+                        description?: string;
+                      },
+                      index: number
+                    ) => (
+                      <div
+                        key={index}
+                        className="border-l-2 border-primary/30 pl-3 pb-2 last:pb-0"
+                      >
+                        <div className="font-medium text-sm text-foreground">
+                          {exp.position}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {exp.company}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {new Date(exp.startDate).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                          })}{" "}
+                          {exp.endDate || exp.isCurrentlyWorking
+                            ? `- ${
+                                exp.isCurrentlyWorking
+                                  ? "Present"
+                                  : new Date(exp.endDate || "").toLocaleDateString(
+                                      "en-US",
+                                      { year: "numeric", month: "short" }
+                                    )
+                              }`
+                            : ""}
+                        </div>
+                        {exp.description && (
+                          <div className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                            {exp.description}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Education */}
+            {profile.education && profile.education.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <GraduationCap className="w-4 h-4" />
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Education
+                  </h3>
+                </div>
+                <div className="space-y-3">
+                  {profile.education.map(
+                    (
+                      edu: {
+                        degree: string;
+                        fieldOfStudy: string;
+                        school: string;
+                        startDate: string;
+                        endDate?: string;
+                        isCurrentlyStudying: boolean;
+                        description?: string;
+                      },
+                      index: number
+                    ) => (
+                      <div
+                        key={index}
+                        className="border-l-2 border-primary/30 pl-3 pb-2 last:pb-0"
+                      >
+                        <div className="font-medium text-sm text-foreground">
+                          {edu.degree} in {edu.fieldOfStudy}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {edu.school}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {new Date(edu.startDate).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                          })}{" "}
+                          {edu.endDate || edu.isCurrentlyStudying
+                            ? `- ${
+                                edu.isCurrentlyStudying
+                                  ? "Present"
+                                  : new Date(edu.endDate || "").toLocaleDateString(
+                                      "en-US",
+                                      { year: "numeric", month: "short" }
+                                    )
+                              }`
+                            : ""}
+                        </div>
+                        {edu.description && (
+                          <div className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                            {edu.description}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  )}
                 </div>
               </div>
             )}

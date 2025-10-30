@@ -41,6 +41,77 @@ const userSchema = new Schema(
       type: String,
       default: null,
     },
+    workExperience: [
+      {
+        _id: {
+          type: mongoose.Schema.Types.ObjectId,
+          auto: true,
+        },
+        company: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        position: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        startDate: {
+          type: Date,
+          required: true,
+        },
+        endDate: {
+          type: Date,
+        },
+        isCurrentlyWorking: {
+          type: Boolean,
+          default: false,
+        },
+        description: {
+          type: String,
+          trim: true,
+        },
+      },
+    ],
+    education: [
+      {
+        _id: {
+          type: mongoose.Schema.Types.ObjectId,
+          auto: true,
+        },
+        school: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        degree: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        fieldOfStudy: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        startDate: {
+          type: Date,
+          required: true,
+        },
+        endDate: {
+          type: Date,
+        },
+        isCurrentlyStudying: {
+          type: Boolean,
+          default: false,
+        },
+        description: {
+          type: String,
+          trim: true,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );

@@ -7,6 +7,27 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
+export interface WorkExperienceItem {
+  id?: string;
+  company: string;
+  position: string;
+  startDate: string;
+  endDate?: string;
+  isCurrentlyWorking: boolean;
+  description?: string;
+}
+
+export interface EducationItem {
+  id?: string;
+  school: string;
+  degree: string;
+  fieldOfStudy: string;
+  startDate: string;
+  endDate?: string;
+  isCurrentlyStudying: boolean;
+  description?: string;
+}
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -16,6 +37,8 @@ export interface UserProfile {
   about?: string;
   skills?: string[];
   photoUrl?: string;
+  workExperience?: WorkExperienceItem[];
+  education?: EducationItem[];
   createdAt: string;
   updatedAt: string;
 }

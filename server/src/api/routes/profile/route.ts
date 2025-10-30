@@ -4,6 +4,8 @@ import viewRoute from "./view/view-route.js";
 import editRoute from "./edit/edit-route.js";
 import passwordRoute from "./password/password-route.js";
 import photoRoute from "./photo/photo-route.js";
+import experienceRoute from "./experience/experience-route.js";
+import educationRoute from "./education/education-route.js";
 import { profileRateLimiter } from "../../middlewares/rateLimiter.js";
 
 const profileRouter: ExpressRouter = Router();
@@ -18,5 +20,7 @@ profileRouter.use("/view", viewRoute);
 profileRouter.use("/", editRoute);
 profileRouter.use("/", passwordRoute);
 profileRouter.use("/photo", photoRoute);
+profileRouter.use("/experience", experienceRoute);
+profileRouter.use("/education", educationRoute);
 
 export default profileRouter;
