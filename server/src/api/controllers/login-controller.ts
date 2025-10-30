@@ -22,6 +22,16 @@ const loginController = async (req: Request, res: Response) => {
       throw new AppError("No account found with this email address", 401, true);
     }
 
+    // Check if email is verified
+    if (!user.isEmailVerified) {
+      throw new AppError(
+        "Please verify your email first",
+        403,
+        true,
+        "EMAIL_NOT_VERIFIED"
+      );
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new AppError("Email or password is invalid", 401, true);
@@ -40,8 +50,8 @@ const loginController = async (req: Request, res: Response) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Only send over HTTPS in production
-      sameSite: "none", // Allow cross-origin cookies (required for production with separate frontend)
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       expires: new Date(Date.now() + 8 * 3600000),
     });
 

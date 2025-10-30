@@ -83,6 +83,11 @@ export const useLogin = (): UseLoginReturn => {
       setError(errorMessage);
       setStoreError(errorMessage);
       toast.error(errorMessage);
+
+      // If email is not verified, redirect to verify email page
+      if (axios.isAxiosError(err) && err.response?.data?.code === "EMAIL_NOT_VERIFIED") {
+        navigate(`/verify-email?email=${encodeURIComponent(credentials.email)}`);
+      }
     } finally {
       setIsLoading(false);
     }

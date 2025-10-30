@@ -5,6 +5,8 @@ import { Login } from "./pages/Login";
 import { Signup } from "./pages/Signup";
 import { ForgotPassword } from "./pages/ForgotPassword";
 import { ResetPassword } from "./pages/ResetPassword";
+import { VerifyEmail } from "./pages/VerifyEmail";
+import { VerifyEmailSuccess } from "./pages/VerifyEmailSuccess";
 import { Dashboard } from "./pages/Dashboard";
 import { Requests } from "./pages/Requests";
 import { Connections } from "./pages/Connections";
@@ -29,6 +31,8 @@ const App = () => {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/verify-email-success" element={<VerifyEmailSuccess />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route

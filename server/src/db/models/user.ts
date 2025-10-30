@@ -121,6 +121,27 @@ const userSchema = new Schema(
       type: Date,
       default: null,
     },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerificationOTP: {
+      type: String,
+      default: null,
+      sparse: true,
+    },
+    emailVerificationOtpExpiry: {
+      type: Date,
+      default: null,
+    },
+    otpAttempts: {
+      type: Number,
+      default: 0,
+    },
+    otpLockedUntil: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );

@@ -4,6 +4,7 @@ import loginRouter from "./login/login-route.js";
 import signoutRouter from "./signout/signout-route.js";
 import forgotPasswordRouter from "./forgot-password/forgot-password-route.js";
 import resetPasswordRouter from "./reset-password/reset-password-route.js";
+import verifyEmailRouter from "./verify-email/verify-email-route.js";
 import { authRateLimiter } from "../../middlewares/rateLimiter.js";
 
 const router: Router = Router();
@@ -16,5 +17,6 @@ router.use("/", loginRouter);
 router.use("/", signoutRouter);
 router.use("/", forgotPasswordRouter);
 router.use("/", resetPasswordRouter);
+router.use("/", verifyEmailRouter);
 
 export default router;

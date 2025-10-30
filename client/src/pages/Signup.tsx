@@ -26,7 +26,13 @@ export const Signup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await signup(formData);
+    try {
+      await signup(formData);
+      // Redirect to verify email page after successful signup
+      navigate(`/verify-email?email=${encodeURIComponent(formData.email)}`);
+    } catch {
+      // Error handled in hook
+    }
   };
 
   // Password validation helpers
