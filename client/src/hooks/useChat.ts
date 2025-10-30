@@ -47,6 +47,7 @@ interface UseChatReturn {
   fetchConversations: () => Promise<void>;
   fetchMessages: (conversationId: string, page?: number) => Promise<void>;
   selectConversation: (conversationId: string, user: ChatUser) => void;
+  getOrCreateConversation: (recipientId: string) => Promise<Conversation | null>;
   sendMessage: (content: string, recipientId: string) => void;
   markMessagesAsRead: (conversationId: string) => Promise<void>;
   emitTyping: (recipientId: string) => void;
@@ -220,6 +221,37 @@ export const useChat = (): UseChatReturn => {
     [fetchMessages]
   );
 
+  // Get or create a conversation with a user
+  const getOrCreateConversation = useCallback(
+    async (recipientId: string): Promise<Conversation | null> => {
+      try {
+        const response = await axios.post(
+          `${API_URL}/api/v1/chat/conversations/with/${recipientId}`,
+          {},
+          {
+            withCredentials: true,
+          }
+        );
+
+        if (response.data?.data) {
+          const conversation = response.data.data;
+          // Add to conversations list if not already there
+          setConversations((prev) => {
+            const exists = prev.some((c) => c.id === conversation.id);
+            return exists ? prev : [conversation, ...prev];
+          });
+          return conversation;
+        }
+        return null;
+      } catch (error) {
+        console.error("Error getting or creating conversation:", error);
+        toast.error("Failed to start conversation");
+        return null;
+      }
+    },
+    []
+  );
+
   // Send message via Socket.io
   const sendMessage = useCallback(
     (content: string, recipientId: string) => {
@@ -314,6 +346,7 @@ export const useChat = (): UseChatReturn => {
     fetchConversations,
     fetchMessages,
     selectConversation,
+    getOrCreateConversation,
     sendMessage,
     markMessagesAsRead,
     emitTyping,

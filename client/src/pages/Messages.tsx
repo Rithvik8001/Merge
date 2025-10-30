@@ -1,10 +1,20 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 import { useChat } from "@/hooks/useChat";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { ChatSidebar } from "@/components/ChatSidebar";
 import { ChatWindow } from "@/components/ChatWindow";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+interface UserSearchResult {
+  id: string;
+  userName: string;
+  email: string;
+  photoUrl?: string;
+}
 
 export const Messages = () => {
   const navigate = useNavigate();
@@ -23,6 +33,7 @@ export const Messages = () => {
     fetchConversations,
     fetchMessages,
     selectConversation,
+    getOrCreateConversation,
     sendMessage,
     clearSelection,
     emitTyping,
@@ -30,6 +41,7 @@ export const Messages = () => {
 
   const [showSidebar, setShowSidebar] = useState(!userNameParam);
   const selectedUserNameRef = useRef<string | null>(null);
+  const [isLoadingUserConversation, setIsLoadingUserConversation] = useState(false);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -45,14 +57,18 @@ export const Messages = () => {
 
   // Handle route parameter change - select conversation if userName provided
   useEffect(() => {
-    if (userNameParam && conversations.length > 0) {
-      // Only select if this is a different user than currently selected
+    if (userNameParam) {
+      // Only process if this is a different user than currently selected
       if (selectedUserNameRef.current !== userNameParam.toLowerCase()) {
+        selectedUserNameRef.current = userNameParam.toLowerCase();
+
+        // First, try to find in existing conversations
         const conversation = conversations.find(
           (conv) => conv.userName.toLowerCase() === userNameParam.toLowerCase()
         );
+
         if (conversation) {
-          selectedUserNameRef.current = userNameParam.toLowerCase();
+          // Found in existing conversations
           selectConversation(conversation.id, {
             id: conversation.userId,
             userName: conversation.userName,
@@ -60,13 +76,60 @@ export const Messages = () => {
             photoUrl: conversation.photoUrl,
           });
           setShowSidebar(false);
-        } else {
-          // User not found in conversations, go back to sidebar
-          navigate("/messages");
+        } else if (conversations.length > 0 && !isLoadingConversations) {
+          // Conversations are loaded but user not found
+          // Try to fetch/create conversation by searching for user
+          setIsLoadingUserConversation(true);
+
+          // Search for user by userName to get their ID
+          axios
+            .get(
+              `${API_URL}/api/v1/connection/user/search?searchTerm=${encodeURIComponent(userNameParam)}`,
+              { withCredentials: true }
+            )
+            .then((response) => {
+              if (response.data?.data?.users && response.data.data.users.length > 0) {
+                const user = response.data.data.users.find(
+                  (u: UserSearchResult) => u.userName.toLowerCase() === userNameParam.toLowerCase()
+                );
+
+                if (user) {
+                  // Now create or get conversation with this user
+                  getOrCreateConversation(user.id).then((conv) => {
+                    if (conv) {
+                      selectConversation(conv.id, {
+                        id: user.id,
+                        userName: user.userName,
+                        email: user.email,
+                        photoUrl: user.photoUrl,
+                      });
+                      setShowSidebar(false);
+                    } else {
+                      // Failed to create conversation
+                      navigate("/messages");
+                    }
+                  });
+                } else {
+                  // User not found in search results
+                  navigate("/messages");
+                }
+              } else {
+                // No users found
+                navigate("/messages");
+              }
+            })
+            .catch(() => {
+              // Error searching for user
+              navigate("/messages");
+            })
+            .finally(() => {
+              setIsLoadingUserConversation(false);
+            });
         }
+        // If conversations haven't loaded yet, wait for them to load (don't redirect)
       }
     }
-  }, [userNameParam, conversations]);
+  }, [userNameParam, conversations, isLoadingConversations, selectConversation, getOrCreateConversation, navigate]);
 
   const handleSelectConversation = (conversationId: string) => {
     const conversation = conversations.find((c) => c.id === conversationId);
