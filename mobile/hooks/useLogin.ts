@@ -1,12 +1,8 @@
-import { useState } from "react";
 import { useRouter } from "expo-router";
 import { apiClient, setAuthToken } from "../lib/api";
 import { useAuthStore } from "../store/authStore";
-
-interface LoginCredentials {
-  email: string;
-  password: string;
-}
+import { validateLogin, LoginData } from "../validations/login";
+import { parseApiError, getErrorMessage } from "../utils/errorHandler";
 
 interface LoginResponse {
   message: string;
@@ -16,42 +12,62 @@ interface LoginResponse {
     userName?: string;
     photoUrl?: string;
   };
+  token?: string;
 }
 
 interface UseLoginReturn {
   isLoading: boolean;
   error: string | null;
-  login: (credentials: LoginCredentials) => Promise<boolean>;
+  login: (credentials: { email: string; password: string }) => Promise<boolean>;
 }
 
 export const useLogin = (): UseLoginReturn => {
   const router = useRouter();
-  const { setUser, setError: setStoreError } = useAuthStore();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { setUser, setLoading, setError: setStoreError } = useAuthStore();
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const error = useAuthStore((state) => state.error);
 
-  const login = async (credentials: LoginCredentials): Promise<boolean> => {
+  const login = async (credentials: {
+    email: string;
+    password: string;
+  }): Promise<boolean> => {
     try {
-      setIsLoading(true);
-      setError(null);
+      setLoading(true);
       setStoreError(null);
 
       // Validate inputs
-      if (!credentials.email || !credentials.password) {
-        throw new Error("Email and password are required");
+      const validationResult = validateLogin(credentials);
+      if (!validationResult.success) {
+        const errors = validationResult.error.errors;
+        const firstError = errors[0]?.message || "Invalid email or password";
+        setStoreError(firstError);
+        setLoading(false);
+        return false;
       }
 
       const response = await apiClient.post<LoginResponse>(
         "/api/v1/auth/login",
-        credentials,
+        credentials
       );
 
-      const userData = response.data.data;
+      if (__DEV__) {
+        console.log("🔑 Login response:", {
+          message: response.data.message,
+          token: response.data.token ? "✓ Received" : "✗ Missing",
+          fullResponse: response.data,
+        });
+      }
 
-      // Store JWT token
-      const token = response.headers["authorization"];
+      const userData = response.data.data;
+      const token = response.data.token;
+
+      // Store JWT token from response body
       if (token) {
+        if (__DEV__) console.log("💾 Storing token in SecureStore...");
         await setAuthToken(token);
+        if (__DEV__) console.log("✅ Token stored");
+      } else {
+        if (__DEV__) console.warn("⚠️ No token in response!");
       }
 
       setUser({
@@ -61,35 +77,12 @@ export const useLogin = (): UseLoginReturn => {
         photoUrl: userData.photoUrl,
       });
 
-      setIsLoading(false);
+      setLoading(false);
       return true;
-    } catch (err: any) {
-      setIsLoading(false);
-
-      let errorMessage = "Login failed";
-
-      console.error("Login error:", {
-        status: err.response?.status,
-        data: err.response?.data,
-        message: err.message,
-      });
-
-      if (err.response?.data?.message) {
-        errorMessage = err.response.data.message;
-      } else if (err.response?.data?.error) {
-        errorMessage = err.response.data.error;
-      } else if (err.response?.status === 401) {
-        errorMessage = "Invalid email or password";
-      } else if (err.response?.status === 403) {
-        errorMessage = "Email not verified. Please verify your email first.";
-      } else if (err.message === "Network Error" || !err.response) {
-        errorMessage = "Network error - check your connection";
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-
-      setError(errorMessage);
-      setStoreError(errorMessage);
+    } catch (err) {
+      const appError = parseApiError(err);
+      setStoreError(appError.message);
+      setLoading(false);
       return false;
     }
   };

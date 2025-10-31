@@ -28,7 +28,7 @@ const loginController = async (req: Request, res: Response) => {
         "Please verify your email first",
         403,
         true,
-        "EMAIL_NOT_VERIFIED"
+        "EMAIL_NOT_VERIFIED",
       );
     }
 
@@ -58,6 +58,7 @@ const loginController = async (req: Request, res: Response) => {
     res.status(200).json({
       message: "Login Successfull.",
       data: resultData,
+      token,
     });
   } catch (error) {
     throw error;

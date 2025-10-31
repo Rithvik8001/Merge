@@ -10,14 +10,15 @@ import {
   TextInput as RNTextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter } from "expo-router";
 import { Button } from "../../components/common/Button";
+import { useAuthStore } from "../../store/authStore";
 import { useEmailVerification } from "../../hooks/useEmailVerification";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function VerifyEmailScreen() {
   const router = useRouter();
-  const { email } = useLocalSearchParams<{ email: string }>();
+  const { tempEmail } = useAuthStore();
   const { verifyEmailOtp, resendVerificationOtp, isLoading, error } =
     useEmailVerification();
 
@@ -44,7 +45,7 @@ export default function VerifyEmailScreen() {
   }, [error]);
 
   // Handle missing email
-  if (!email) {
+  if (!tempEmail) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: "#ffffff" }}>
         <View
@@ -69,22 +70,7 @@ export default function VerifyEmailScreen() {
   const handleVerifyOtp = async () => {
     setOtpError("");
 
-    if (!otp) {
-      setOtpError("Please enter the OTP");
-      return;
-    }
-
-    if (otp.length !== 6) {
-      setOtpError("OTP must be 6 digits");
-      return;
-    }
-
-    if (!/^\d{6}$/.test(otp)) {
-      setOtpError("OTP must contain only numbers");
-      return;
-    }
-
-    const success = await verifyEmailOtp(email, otp);
+    const success = await verifyEmailOtp(tempEmail, otp);
     if (success) {
       Alert.alert(
         "Email Verified!",
@@ -100,7 +86,7 @@ export default function VerifyEmailScreen() {
   };
 
   const handleResendOtp = async () => {
-    const success = await resendVerificationOtp(email);
+    const success = await resendVerificationOtp(tempEmail);
     if (success) {
       Alert.alert(
         "OTP Resent",
@@ -179,7 +165,7 @@ export default function VerifyEmailScreen() {
             >
               We've sent a verification code to{"\n"}
               <Text style={{ fontWeight: "600", color: "#1f2937" }}>
-                {email}
+                {tempEmail}
               </Text>
             </Text>
           </View>

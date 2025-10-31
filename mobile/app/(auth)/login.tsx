@@ -19,10 +19,6 @@ export default function LoginScreen() {
   const { login, isLoading, error } = useLogin();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fieldErrors, setFieldErrors] = useState<{
-    email?: string;
-    password?: string;
-  }>({});
 
   // Show error alert when error changes
   useEffect(() => {
@@ -32,25 +28,9 @@ export default function LoginScreen() {
   }, [error]);
 
   const handleLogin = async () => {
-    const newErrors: typeof fieldErrors = {};
-
-    if (!email) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "Please enter a valid email";
-    }
-
-    if (!password) {
-      newErrors.password = "Password is required";
-    }
-
-    setFieldErrors(newErrors);
-
-    if (Object.keys(newErrors).length === 0) {
-      const success = await login({ email, password });
-      if (success) {
-        router.replace("/(dashboard)");
-      }
+    const success = await login({ email, password });
+    if (success) {
+      router.replace("/(dashboard)");
     }
   };
 
@@ -105,7 +85,6 @@ export default function LoginScreen() {
               placeholder="your@email.com"
               value={email}
               onChangeText={setEmail}
-              error={fieldErrors.email}
               keyboardType="email-address"
               autoCapitalize="none"
             />
@@ -116,7 +95,6 @@ export default function LoginScreen() {
               isPassword
               value={password}
               onChangeText={setPassword}
-              error={fieldErrors.password}
               autoCapitalize="none"
             />
 

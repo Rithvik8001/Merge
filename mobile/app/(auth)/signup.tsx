@@ -21,12 +21,6 @@ export default function SignupScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [fieldErrors, setFieldErrors] = useState<{
-    userName?: string;
-    email?: string;
-    password?: string;
-    confirmPassword?: string;
-  }>({});
 
   // Show error alert when error changes
   useEffect(() => {
@@ -36,62 +30,12 @@ export default function SignupScreen() {
   }, [error]);
 
   const handleSignup = async () => {
-    const newErrors: typeof fieldErrors = {};
-
-    if (!userName) {
-      newErrors.userName = "Username is required";
-    } else if (userName.trim().length < 6) {
-      newErrors.userName = "Username must be at least 6 characters";
-    } else if (userName.length > 15) {
-      newErrors.userName = "Username must be at most 15 characters";
-    } else if (!/^[a-zA-Z0-9_]+$/.test(userName)) {
-      newErrors.userName =
-        "Username can only contain letters, numbers, and underscores";
-    }
-
-    if (!email) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "Please enter a valid email";
-    }
-
-    if (!password) {
-      newErrors.password = "Password is required";
-    } else if (password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-    } else if (!/[A-Z]/.test(password)) {
-      newErrors.password = "Password must contain an uppercase letter";
-    } else if (!/[a-z]/.test(password)) {
-      newErrors.password = "Password must contain a lowercase letter";
-    } else if (!/[0-9]/.test(password)) {
-      newErrors.password = "Password must contain a number";
-    } else if (!/[@$!%*?&]/.test(password)) {
-      newErrors.password =
-        "Password must contain a special character (@$!%*?&)";
-    }
-
-    if (!confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
-    setFieldErrors(newErrors);
-
-    if (Object.keys(newErrors).length === 0) {
-      console.log("Sending signup data:", {
-        userName,
-        email,
-        password: "***",
-        confirmPassword: "***",
-      });
-      const success = await signup({
-        userName,
-        email,
-        password,
-        confirmPassword,
-      });
-    }
+    const success = await signup({
+      userName,
+      email,
+      password,
+      confirmPassword,
+    });
   };
 
   return (
@@ -158,7 +102,6 @@ export default function SignupScreen() {
               placeholder="johndoe"
               value={userName}
               onChangeText={setUserName}
-              error={fieldErrors.userName}
               autoCapitalize="none"
             />
 
@@ -167,7 +110,6 @@ export default function SignupScreen() {
               placeholder="your@email.com"
               value={email}
               onChangeText={setEmail}
-              error={fieldErrors.email}
               keyboardType="email-address"
               autoCapitalize="none"
             />
@@ -178,7 +120,6 @@ export default function SignupScreen() {
               isPassword
               value={password}
               onChangeText={setPassword}
-              error={fieldErrors.password}
               autoCapitalize="none"
             />
 
@@ -188,7 +129,6 @@ export default function SignupScreen() {
               isPassword
               value={confirmPassword}
               onChangeText={setConfirmPassword}
-              error={fieldErrors.confirmPassword}
               autoCapitalize="none"
             />
 
