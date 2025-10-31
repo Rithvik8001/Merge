@@ -10,13 +10,6 @@ import { ONBOARDING_SLIDES } from "../constants/onboarding";
 
 const { width } = Dimensions.get("window");
 
-/**
- * OnboardingScreen - Premium Minimal Design
- * Inspired by Apple & shadcn/ui
- * - Clean typography with balanced spacing
- * - Smooth, fast scrolling
- * - Minimal visual elements
- */
 export default function OnboardingScreen() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);

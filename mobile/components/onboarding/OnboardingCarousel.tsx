@@ -9,9 +9,6 @@ import { OnboardingCarouselProps } from "./types";
 
 const { width } = Dimensions.get("window");
 
-/**
- * Premium carousel with smooth scrolling
- */
 export const OnboardingCarousel = ({
   slides,
   onScroll,

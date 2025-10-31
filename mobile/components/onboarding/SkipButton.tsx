@@ -1,26 +1,33 @@
 import { View, TouchableOpacity, Text } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface SkipButtonProps {
   onSkip: () => void;
   show: boolean;
 }
 
-/**
- * Skip button - minimal, text-only affordance
- */
 export const SkipButton = ({ onSkip, show }: SkipButtonProps) => {
+  const insets = useSafeAreaInsets();
+
   if (!show) return null;
 
   return (
     <View
       style={{
         paddingHorizontal: 24,
-        paddingTop: 14,
-        paddingBottom: 8,
+        paddingTop: insets.top + 12,
+        paddingBottom: 12,
         zIndex: 10,
       }}
     >
-      <TouchableOpacity onPress={onSkip} activeOpacity={0.5}>
+      <TouchableOpacity
+        onPress={onSkip}
+        activeOpacity={0.5}
+        style={{
+          paddingVertical: 10,
+          paddingHorizontal: 12,
+        }}
+      >
         <Text
           style={{
             color: "#9ca3af",

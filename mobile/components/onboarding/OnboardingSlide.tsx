@@ -4,13 +4,6 @@ import { SlideProps } from "./types";
 
 const { height, width } = Dimensions.get("window");
 
-/**
- * Premium minimal onboarding slide
- * Design inspiration: Apple & shadcn/ui
- * - Clean typography hierarchy
- * - Balanced spacing
- * - No unnecessary decoration
- */
 export const OnboardingSlide = ({ slide }: SlideProps) => {
   return (
     <View
@@ -22,7 +15,6 @@ export const OnboardingSlide = ({ slide }: SlideProps) => {
         paddingHorizontal: 28,
       }}
     >
-      {/* Icon - Clean, no background */}
       <View style={{ marginBottom: 24 }}>
         <MaterialCommunityIcons
           name={slide.icon}
@@ -32,9 +24,7 @@ export const OnboardingSlide = ({ slide }: SlideProps) => {
         />
       </View>
 
-      {/* Text Content - Pure typography */}
       <View style={{ alignItems: "center", maxWidth: 320 }}>
-        {/* Subtitle - Minimal, accent color */}
         <Text
           style={{
             fontSize: 13,
@@ -48,7 +38,6 @@ export const OnboardingSlide = ({ slide }: SlideProps) => {
           {slide.subtitle}
         </Text>
 
-        {/* Title - Large and bold */}
         <Text
           style={{
             fontSize: 38,
@@ -63,7 +52,6 @@ export const OnboardingSlide = ({ slide }: SlideProps) => {
           {slide.title}
         </Text>
 
-        {/* Description - Clear and readable */}
         <Text
           style={{
             fontSize: 15,

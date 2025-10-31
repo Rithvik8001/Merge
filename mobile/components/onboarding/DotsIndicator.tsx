@@ -1,10 +1,6 @@
 import { View, TouchableOpacity } from "react-native";
 import { DotsIndicatorProps } from "./types";
 
-/**
- * Minimal dot indicator
- * Subtle, functional progress indicator
- */
 export const DotsIndicator = ({
   slides,
   currentSlide,

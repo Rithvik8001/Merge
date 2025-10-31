@@ -3,10 +3,6 @@ import { Link } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { BottomActionsProps } from "./types";
 
-/**
- * Bottom action buttons
- * Clean, flat design inspired by Apple & shadcn/ui
- */
 export const BottomActions = ({
   currentSlide,
   totalSlides,
@@ -24,7 +20,6 @@ export const BottomActions = ({
           gap: 12,
         }}
       >
-        {/* Primary CTA Button */}
         <Link href="/(auth)/signup" asChild>
           <TouchableOpacity
             activeOpacity={0.75}
@@ -47,7 +42,6 @@ export const BottomActions = ({
           </TouchableOpacity>
         </Link>
 
-        {/* Secondary CTA Button */}
         <Link href="/(auth)/login" asChild>
           <TouchableOpacity
             activeOpacity={0.75}
@@ -83,7 +77,6 @@ export const BottomActions = ({
         paddingTop: 8,
       }}
     >
-      {/* Next Button */}
       <TouchableOpacity
         onPress={onNext}
         activeOpacity={0.75}
